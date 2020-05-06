@@ -151,6 +151,18 @@ void DrawableGameObject::setPosition(XMFLOAT3 position)
 	m_position = position;
 }
 
+void DrawableGameObject::setVertexBuffer(ID3D11DeviceContext* pContext)
+{
+	UINT stride = sizeof(SimpleVertex);
+	UINT offset = 0;
+	pContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+}
+
+void DrawableGameObject::setIndexBuffer(ID3D11DeviceContext* pContext)
+{
+	pContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+}
+
 void DrawableGameObject::update(float t)
 {
 	// Cube:  Rotate around origin

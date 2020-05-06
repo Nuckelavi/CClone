@@ -36,6 +36,9 @@ public:
 	MaterialPropertiesConstantBuffer	getMaterial() { return m_material;}
 	void								setPosition(XMFLOAT3 position);
 
+	void setVertexBuffer(ID3D11DeviceContext* pContext);
+	void setIndexBuffer(ID3D11DeviceContext* pContext);
+
 private:
 	
 	XMMATRIX							m_World;
