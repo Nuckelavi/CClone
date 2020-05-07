@@ -367,6 +367,9 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Physics\d_Constants.h" />
+    <ClInclude Include="Physics\d_Transform.h" />
+    <ClInclude Include="Physics\d_Vec3.h" />
     <CLInclude Include="resource.h" />
     <ClInclude Include="structures.h" />
     <ResourceCompile Include="Tutorial01.rc" />
@@ -385,6 +388,8 @@
     <ClCompile Include="imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Physics\d_Transform.cpp" />
+    <ClCompile Include="Physics\d_Vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\stone.dds" />
