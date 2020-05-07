@@ -123,5 +123,14 @@
     <FxCompile Include="shader.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="d_DepthOfField.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="d_GaussianBlur.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="d_POMShader.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
