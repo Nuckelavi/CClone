@@ -75,6 +75,8 @@ int						g_viewHeight;
 
 DrawableGameObject		g_GameObject;
 
+Cube g_CubeTest;
+
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -395,6 +397,10 @@ HRESULT InitDevice()
 	if (FAILED(hr))
 		return hr;
 
+    hr = g_CubeTest.InitMesh(g_pd3dDevice, g_pImmediateContext);
+    if (FAILED(hr))
+        return hr;
+
     return S_OK;
 }
 
@@ -634,6 +640,8 @@ void Render()
 
 	// Update variables for a cube
 	g_GameObject.update(t);
+    g_CubeTest.SetRotation(0, 0.5f, 0);
+    g_CubeTest.Update(0.0f);
 
     // Update variables for the cube
 	XMMATRIX* mGO = g_GameObject.getTransform();
@@ -678,10 +686,6 @@ void Render()
 
 
     // Render the cube
-    g_GameObject.setVertexBuffer(g_pImmediateContext);
-    g_GameObject.setIndexBuffer(g_pImmediateContext);
-    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
 	g_pImmediateContext->VSSetShader( g_pVertexShader, nullptr, 0 );
 	g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_pConstantBuffer );
 	g_pImmediateContext->PSSetShader( g_pPixelShader, nullptr, 0 );
@@ -692,7 +696,21 @@ void Render()
 	g_pImmediateContext->PSSetShaderResources(0, 1, &g_pTextureRV);
 	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
-	g_pImmediateContext->DrawIndexed( 36, 0, 0 );
+
+    /*g_GameObject.setVertexBuffer(g_pImmediateContext);
+    g_GameObject.setIndexBuffer(g_pImmediateContext);
+    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+	g_pImmediateContext->DrawIndexed( 36, 0, 0 );*/
+
+    mGO = g_CubeTest.GetWorld();
+    cb1.mWorld = XMMatrixTranspose(*mGO);
+    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
+    //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+    g_CubeTest.Draw(g_pImmediateContext);
+
 
     // Present our back buffer to our front buffer
     g_pSwapChain->Present( 0, 0 );

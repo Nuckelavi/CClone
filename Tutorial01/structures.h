@@ -1,6 +1,6 @@
 #pragma once
 using namespace std;
-using namespace DirectX;
+//using namespace DirectX;
 
 //--------------------------------------------------------------------------------------
 // Structures
@@ -9,10 +9,10 @@ using namespace DirectX;
 
 struct ConstantBuffer
 {
-	XMMATRIX mWorld;
-	XMMATRIX mView;
-	XMMATRIX mProjection;
-	XMFLOAT4 vOutputColor;
+	DirectX::XMMATRIX mWorld;
+	DirectX::XMMATRIX mView;
+	DirectX::XMMATRIX mProjection;
+	DirectX::XMFLOAT4 vOutputColor;
 };
 
 struct _Material
@@ -102,3 +102,11 @@ struct LightPropertiesConstantBuffer
 	//----------------------------------- (16 byte boundary)
 	Light               Lights[MAX_LIGHTS]; // 80 * 8 bytes
 };  // Total:                                  672 bytes (42 * 16)
+
+
+struct SimpleVertex
+{
+	DirectX::XMFLOAT3 Pos;
+	DirectX::XMFLOAT3 Normal;
+	DirectX::XMFLOAT2 TexCoord;
+};

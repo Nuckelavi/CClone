@@ -4,6 +4,10 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
+    <ClCompile Include="d_Mesh.cpp" />
+    <ClCompile Include="d_Cube.cpp" />
+    <ClCompile Include="d_Grid.cpp" />
+    <ClCompile Include="d_Block.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -21,6 +25,11 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="structures.h" />
+    <ClInclude Include="d_Mesh.h" />
+    <ClInclude Include="d_Cube.h" />
+    <ClInclude Include="d_Grid.h" />
+    <ClInclude Include="d_Block.h" />
+    <ClInclude Include="d_Chunk.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">

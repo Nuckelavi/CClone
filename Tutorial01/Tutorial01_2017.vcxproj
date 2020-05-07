@@ -353,6 +353,11 @@
   <ItemGroup>
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DrawableGameObject.h" />
+    <ClInclude Include="d_Block.h" />
+    <ClInclude Include="d_Chunk.h" />
+    <ClInclude Include="d_Cube.h" />
+    <ClInclude Include="d_Grid.h" />
+    <ClInclude Include="d_Mesh.h" />
     <ClInclude Include="main.h" />
     <CLInclude Include="resource.h" />
     <ClInclude Include="structures.h" />
@@ -361,6 +366,10 @@
   <ItemGroup>
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
+    <ClCompile Include="d_Block.cpp" />
+    <ClCompile Include="d_Cube.cpp" />
+    <ClCompile Include="d_Grid.cpp" />
+    <ClCompile Include="d_Mesh.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

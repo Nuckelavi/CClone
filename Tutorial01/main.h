@@ -16,6 +16,8 @@
 
 #include <vector>
 
+#include "d_Cube.h"
+
 using namespace std;
 
 typedef vector<DrawableGameObject*> vecDrawables;
