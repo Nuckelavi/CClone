@@ -20,6 +20,9 @@
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
 
+//#include "Camera/d_Camera.h"
+#include "Camera/d_CameraManager.h"
+
 DirectX::XMFLOAT4 g_EyePosition(0.0f, 0, -3, 1.0f);
 
 //--------------------------------------------------------------------------------------
@@ -79,11 +82,15 @@ int						g_viewHeight;
 
 DrawableGameObject		g_GameObject;
 
+
+CameraManager g_CameraManager;
 Cube g_CubeTest;
+//Camera g_CameraTest;
 
 
 void SetupImgui();
 void RenderImgui();
+void InitCamera();
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -556,6 +563,8 @@ HRESULT		InitWorld(int width, int height)
 	// Initialize the projection matrix
 	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (FLOAT)height, 0.01f, 100.0f);
 
+    InitCamera();
+
 	return S_OK;
 }
 
@@ -649,6 +658,11 @@ void Render()
 
     // Clear the depth buffer to 1.0 (max depth)
     g_pImmediateContext->ClearDepthStencilView( g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+
+
+    //CAMERA STUFFFFFFFFFFFFF
+    g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
+    g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());
 
 
 	// Update variables for a cube
@@ -759,4 +773,11 @@ void RenderImgui()
     //g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
     //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void InitCamera()
+{
+    g_CameraManager.InitCameras(g_viewWidth, g_viewHeight);
+    g_CameraManager.SetCurrentCamera(CameraType::TOPDOWN);
+
 }

@@ -32,6 +32,12 @@
     <ClCompile Include="Physics\d_Vec3.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="Camera\d_CameraManager.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera\d_Camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -45,6 +51,9 @@
     </Filter>
     <Filter Include="Physics">
       <UniqueIdentifier>{40442d5c-5b2d-487b-ab22-f964130dabaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{8bb6e2cd-a4d3-4294-9029-7fd3d2f55006}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +101,12 @@
     </ClInclude>
     <ClInclude Include="Physics\d_Vec3.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera\d_CameraManager.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera\d_Camera.h">
+      <Filter>Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

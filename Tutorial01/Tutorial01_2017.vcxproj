@@ -351,6 +351,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera\d_Camera.h" />
+    <ClInclude Include="Camera\d_CameraManager.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="d_Block.h" />
@@ -375,6 +377,8 @@
     <ResourceCompile Include="Tutorial01.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera\d_Camera.cpp" />
+    <ClCompile Include="Camera\d_CameraManager.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
     <ClCompile Include="d_Block.cpp" />
