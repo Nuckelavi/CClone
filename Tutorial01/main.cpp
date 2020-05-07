@@ -16,6 +16,10 @@
 
 #include "main.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx11.h"
+
 DirectX::XMFLOAT4 g_EyePosition(0.0f, 0, -3, 1.0f);
 
 //--------------------------------------------------------------------------------------
@@ -78,6 +82,9 @@ DrawableGameObject		g_GameObject;
 Cube g_CubeTest;
 
 
+void SetupImgui();
+void RenderImgui();
+
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
 // loop. Idle time is used to render the scene.
@@ -95,6 +102,8 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         CleanupDevice();
         return 0;
     }
+
+    SetupImgui();
 
     // Main message loop
     MSG msg = {0};
@@ -573,6 +582,10 @@ void CleanupDevice()
     if( g_pImmediateContext ) g_pImmediateContext->Release();
     if( g_pd3dDevice1 ) g_pd3dDevice1->Release();
     if( g_pd3dDevice ) g_pd3dDevice->Release();
+
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 }
 
 
@@ -711,6 +724,7 @@ void Render()
     //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
     g_CubeTest.Draw(g_pImmediateContext);
 
+    //RenderImgui();
 
     // Present our back buffer to our front buffer
     g_pSwapChain->Present( 0, 0 );
@@ -718,3 +732,31 @@ void Render()
 
 
 
+void SetupImgui()
+{
+    IMGUI_CHECKVERSION();
+
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplWin32_Init(g_hWnd);
+    ImGui_ImplDX11_Init(g_pd3dDevice, g_pImmediateContext);
+}
+
+void RenderImgui()
+{
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Hello, world!"); 
+    ImGui::Text("This is some useful text.");
+    ImGui::End();
+
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // Rendering
+    ImGui::Render();
+    //g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
+    //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
