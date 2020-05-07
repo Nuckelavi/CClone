@@ -20,9 +20,6 @@
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
 
-//#include "Camera/d_Camera.h"
-#include "Camera/d_CameraManager.h"
-
 DirectX::XMFLOAT4 g_EyePosition(0.0f, 0, -3, 1.0f);
 
 //--------------------------------------------------------------------------------------

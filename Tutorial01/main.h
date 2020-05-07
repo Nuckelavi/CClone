@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "d_Cube.h"
+#include "Camera/d_CameraManager.h"
 
 using namespace std;
 
