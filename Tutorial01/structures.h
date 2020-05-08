@@ -104,9 +104,39 @@ struct LightPropertiesConstantBuffer
 };  // Total:                                  672 bytes (42 * 16)
 
 
+//DJEDOVIC-------------------------------------------------
+
+struct ConstantBufferPOM
+{
+	DirectX::XMMATRIX mWorld;
+	DirectX::XMMATRIX mView;
+	DirectX::XMMATRIX mProjection;
+
+	float fHeightScale;
+	int nMinSamples;
+	int nMaxSamples;
+	int nEffectID;
+};
+
 struct SimpleVertex
 {
 	DirectX::XMFLOAT3 Pos;
 	DirectX::XMFLOAT3 Normal;
 	DirectX::XMFLOAT2 TexCoord;
 };
+
+//cbuffer ConstantBuffer : register(b0)
+//{
+//	matrix World;
+//	matrix View;
+//	matrix Projection;
+//
+//	float fHeightScale;
+//	int nMinSamples;
+//	int nMaxSamples;
+//	int nEffectID;
+//
+//	/*float fNearDepth;
+//	float fFarDepth;
+//	float2 pad0;*/
+//}

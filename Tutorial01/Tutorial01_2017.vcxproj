@@ -359,6 +359,7 @@
     <ClInclude Include="d_Chunk.h" />
     <ClInclude Include="d_Cube.h" />
     <ClInclude Include="d_Grid.h" />
+    <ClInclude Include="d_LightManager.h" />
     <ClInclude Include="d_Mesh.h" />
     <ClInclude Include="d_TextureManager.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -385,6 +386,7 @@
     <ClCompile Include="d_Block.cpp" />
     <ClCompile Include="d_Cube.cpp" />
     <ClCompile Include="d_Grid.cpp" />
+    <ClCompile Include="d_LightManager.cpp" />
     <ClCompile Include="d_Mesh.cpp" />
     <ClCompile Include="d_TextureManager.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />

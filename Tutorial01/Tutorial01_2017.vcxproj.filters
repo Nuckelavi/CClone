@@ -39,6 +39,7 @@
       <Filter>Camera</Filter>
     </ClCompile>
     <ClCompile Include="d_TextureManager.cpp" />
+    <ClCompile Include="d_LightManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -110,6 +111,7 @@
       <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="d_TextureManager.h" />
+    <ClInclude Include="d_LightManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">

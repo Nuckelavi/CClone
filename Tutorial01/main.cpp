@@ -81,12 +81,11 @@ DrawableGameObject		g_GameObject;
 
 
 CameraManager g_CameraManager;
+LightManager g_LightManager = LightManager(g_EyePosition);
 TextureManager g_TextureManager;
 Cube g_CubeTest;
 //Camera g_CameraTest;
 
-XMFLOAT4 g_LightPosition = g_EyePosition;
-XMFLOAT4 g_EyeOrigin = g_EyePosition;
 
 
 void SetupImgui();
@@ -636,71 +635,6 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
     return 0;
 }
 
-void LightControl()
-{
-    float lightChangeRate = 0.01;
-    //-------------------------------------------------------------------
-    //INPUTS
-    //-------------------------------------------------------------------
-    /*A KEY - move light -X axis
-     *D KEY - move light +X axis
-     *W KEY - move light +Y axis
-     *S KEY - move light -Y axis
-     *E KEY - move light +Z axis
-     *Q KEY - move light -Z axis
-     *NUMPAD 0 - reset light position (light in front of object)
-     *NUMPAD 1 - set light to the left of object
-     *NUMPAD 2 - set light behind the object
-     *NUMPAD 3 - set light to the right of object
-     */
-     //------------------------------------------------------------------
-    if (GetAsyncKeyState(0x41))
-    {
-        g_LightPosition.x -= lightChangeRate;
-    }
-    if (GetAsyncKeyState(0x44))
-    {
-        g_LightPosition.x += lightChangeRate;
-    }
-    if (GetAsyncKeyState(0x57))
-    {
-        g_LightPosition.y += lightChangeRate;
-    }
-    if (GetAsyncKeyState(0x53))
-    {
-        g_LightPosition.y -= lightChangeRate;
-    }
-    if (GetAsyncKeyState(0x45))
-    {
-        g_LightPosition.z += lightChangeRate;
-    }
-    if (GetAsyncKeyState(0x51))
-    {
-        g_LightPosition.z -= lightChangeRate;
-    }
-    if (GetAsyncKeyState(VK_NUMPAD0))
-    {
-        g_LightPosition = g_EyeOrigin;
-    }
-    if (GetAsyncKeyState(VK_NUMPAD2))
-    {
-        g_LightPosition.x = g_EyeOrigin.x;
-        g_LightPosition.y = g_EyeOrigin.y;
-        g_LightPosition.z = -g_EyeOrigin.z;
-    }
-    if (GetAsyncKeyState(VK_NUMPAD1))
-    {
-        g_LightPosition.x = g_EyeOrigin.z;
-        g_LightPosition.y = g_EyeOrigin.y;
-        g_LightPosition.z = g_EyeOrigin.x;
-    }
-    if (GetAsyncKeyState(VK_NUMPAD3))
-    {
-        g_LightPosition.x = -g_EyeOrigin.z;
-        g_LightPosition.y = g_EyeOrigin.y;
-        g_LightPosition.z = g_EyeOrigin.x;
-    }
-}
 
 //--------------------------------------------------------------------------------------
 // Render a frame
@@ -737,9 +671,12 @@ void Render()
     g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
     g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());
 
-    //tie this in with imgui dude
-    LightControl();
 
+
+
+
+    //tie this in with imgui dude
+    g_LightManager.Update();
 
 
 
@@ -782,7 +719,8 @@ void Render()
 	
 
 	// set up the light
-    XMFLOAT4 LightPosition(g_LightPosition);//g_EyePosition);
+    XMFLOAT4 LightPosition(g_LightManager.LightVec());
+    //XMFLOAT4 LightPosition(g_LightPosition);//g_EyePosition);
 	light.Position = LightPosition;
 	XMVECTOR LightDirection = XMVectorSet(-LightPosition.x, -LightPosition.y, -LightPosition.z, 0.0f);
 	LightDirection = XMVector3Normalize(LightDirection);
@@ -797,23 +735,30 @@ void Render()
 
 
     // Render the cube
+
+    //set effect's main constant buffer, vertes and pixel shaders
 	g_pImmediateContext->VSSetShader( g_pVertexShader, nullptr, 0 );
 	g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_pConstantBuffer );
 	g_pImmediateContext->PSSetShader( g_pPixelShader, nullptr, 0 );
 
+    //set other constant buffers
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
 	g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
+    //set textures and sampler
     ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
 	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
 
+    //render DrawableGameObject
     /*g_GameObject.setVertexBuffer(g_pImmediateContext);
     g_GameObject.setIndexBuffer(g_pImmediateContext);
     g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
 	g_pImmediateContext->DrawIndexed( 36, 0, 0 );*/
 
+
+    //render cube
     mGO = g_CubeTest.GetWorld();
     cb1.mWorld = XMMatrixTranspose(*mGO);
     g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
@@ -822,6 +767,8 @@ void Render()
     g_CubeTest.SetIndexBuffer(g_pImmediateContext);
     //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
     g_CubeTest.Draw(g_pImmediateContext);
+
+
 
     //RenderImgui();
 
