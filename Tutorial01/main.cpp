@@ -81,6 +81,7 @@ DrawableGameObject		g_GameObject;
 
 
 CameraManager g_CameraManager;
+TextureManager g_TextureManager;
 Cube g_CubeTest;
 //Camera g_CameraTest;
 
@@ -357,7 +358,7 @@ HRESULT InitDevice()
     descDepth.Width = width;
     descDepth.Height = height;
     descDepth.MipLevels = 1;
-    descDepth.ArraySize = 1;
+    descDepth.ArraySize = g_TextureManager.TextureMaxNum();
     descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
     descDepth.SampleDesc.Count = 1;
     descDepth.SampleDesc.Quality = 0;
@@ -529,6 +530,8 @@ HRESULT		InitMesh()
 	if (FAILED(hr))
 		return hr;
 
+    hr = g_TextureManager.InitTextures(g_pd3dDevice);
+
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
 	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -658,6 +661,7 @@ void Render()
 
 
     //CAMERA STUFFFFFFFFFFFFF
+    g_CameraManager.SetCurrentCamera(CameraType::FRONT);
     g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
     g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());
 
@@ -717,7 +721,8 @@ void Render()
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
 	g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
-	g_pImmediateContext->PSSetShaderResources(0, 1, &g_pTextureRV);
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE2));
+    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
 	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
 

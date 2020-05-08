@@ -360,6 +360,7 @@
     <ClInclude Include="d_Cube.h" />
     <ClInclude Include="d_Grid.h" />
     <ClInclude Include="d_Mesh.h" />
+    <ClInclude Include="d_TextureManager.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_dx11.h" />
@@ -385,6 +386,7 @@
     <ClCompile Include="d_Cube.cpp" />
     <ClCompile Include="d_Grid.cpp" />
     <ClCompile Include="d_Mesh.cpp" />
+    <ClCompile Include="d_TextureManager.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
     <ClCompile Include="imgui\imgui_draw.cpp" />

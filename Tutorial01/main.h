@@ -18,6 +18,7 @@
 
 #include "d_Cube.h"
 #include "Camera/d_CameraManager.h"
+#include "d_TextureManager.h"
 
 using namespace std;
 

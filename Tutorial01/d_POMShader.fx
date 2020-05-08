@@ -20,12 +20,12 @@ cbuffer ConstantBuffer : register( b0 )
 	int nMaxSamples;
 	int nEffectID;
 
-	float fNearDepth;
+	/*float fNearDepth;
 	float fFarDepth;
-	float2 pad0;
+	float2 pad0;*/
 }
 
-Texture2D txDiffuse : register(t0);
+Texture2D txDiffuse[3] : register(t0);
 SamplerState samLinear : register(s0);
 
 #define MAX_LIGHTS 1
@@ -220,7 +220,7 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
 
 float3 NormalMapping(float2 texCoord, float3x3 TBN)
 {
-	float3 texNormal = txDiffuse[11].Sample(samLinear, texCoord).rgb;
+	float3 texNormal = txDiffuse[1].Sample(samLinear, texCoord).rgb;
 
 	//decompress from [0,1] to [-1,1] range
 	float3 texNorm = 2.0f * texNormal - 1.0f;
@@ -233,7 +233,7 @@ float3 NormalMapping(float2 texCoord, float3x3 TBN)
 
 float2 SimpleParallax(float2 texCoord, float3 toEye)
 {
-	float height = txDiffuse[12].Sample(samLinear, texCoord).r;
+	float height = txDiffuse[2].Sample(samLinear, texCoord).r;
 	//assumed that scaled height = -biased height -> h * s + b = h * s - s = s(h - 1)
 	//because in presentation it states that reasonable scale value = 0.02, and bias = [-0.01, -0.02]
 	float heightSB = fHeightScale * (height - 1.0);
@@ -273,7 +273,7 @@ float2 ParallaxOcclusion(float2 texCoord, float3 normal, float3 toEye)
 
 	while (currSample < numSamples + 1)
 	{
-		currHeight = txDiffuse[12].SampleGrad(samLinear, texCoord + currParallax, dx, dy).r;
+		currHeight = txDiffuse[2].SampleGrad(samLinear, texCoord + currParallax, dx, dy).r;
 
 		if (currHeight > currZ)
 		{
@@ -310,7 +310,7 @@ float ParallaxSelfShadowing(float3 toLight, float2 texCoord, bool softShadow)
 
 	float2 dx = ddx(texCoord);
 	float2 dy = ddy(texCoord);
-	float height = 1.0 - txDiffuse[12].SampleGrad(samLinear, texCoord, dx, dy).r;
+	float height = 1.0 - txDiffuse[2].SampleGrad(samLinear, texCoord, dx, dy).r;
 
 	float parallaxScale = fHeightScale * (1.0 - height);
 
@@ -327,7 +327,7 @@ float ParallaxSelfShadowing(float3 toLight, float2 texCoord, bool softShadow)
 
 		float currLayerHeight = height - layerHeight;
 		float2 currTexCoord = texCoord + texStep;
-		float heightFromTex = 1.0 - txDiffuse[12].SampleGrad(samLinear, currTexCoord, dx, dy).r;
+		float heightFromTex = 1.0 - txDiffuse[2].SampleGrad(samLinear, currTexCoord, dx, dy).r;
 		int stepIndex = 1;
 		int numIter = 0;
 
@@ -343,7 +343,7 @@ float ParallaxSelfShadowing(float3 toLight, float2 texCoord, bool softShadow)
 			stepIndex += 1;
 			currLayerHeight -= layerHeight;
 			currTexCoord += texStep;
-			heightFromTex = txDiffuse[12].SampleGrad(samLinear, currTexCoord, dx, dy).r;
+			heightFromTex = txDiffuse[2].SampleGrad(samLinear, currTexCoord, dx, dy).r;
 		}
 
 		if (numSamplesUnderSurface < 1)
@@ -416,7 +416,7 @@ float4 NormalMapped(PS_INPUT IN)
 
 	if (Material.UseTexture)
 	{
-		texColor = txDiffuse[10].Sample(samLinear, IN.Tex);
+		texColor = txDiffuse[0].Sample(samLinear, IN.Tex);
 	}
 
 	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
@@ -458,7 +458,7 @@ float4 SimpleParallaxMapped(PS_INPUT IN)
 
 	if (Material.UseTexture)
 	{
-		texColor = txDiffuse[10].Sample(samLinear, parallaxTex);
+		texColor = txDiffuse[0].Sample(samLinear, parallaxTex);
 	}
 
 	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
@@ -498,7 +498,7 @@ float4 ParallaxOcclusionMapped(PS_INPUT IN)
 
 	if (Material.UseTexture)
 	{
-		texColor = txDiffuse[10].Sample(samLinear, parallaxTex);
+		texColor = txDiffuse[0].Sample(samLinear, parallaxTex);
 	}
 
 
@@ -548,7 +548,7 @@ float4 SelfShadowed(PS_INPUT IN)
 
 	if (Material.UseTexture)
 	{
-		texColor = txDiffuse[10].Sample(samLinear, parallaxTex);
+		texColor = txDiffuse[0].Sample(samLinear, parallaxTex);
 	}
 
 	float shadowFactor = ParallaxSelfShadowing(vertexToLightTS, parallaxTex, softShadow);
