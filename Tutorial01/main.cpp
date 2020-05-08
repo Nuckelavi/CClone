@@ -85,6 +85,9 @@ TextureManager g_TextureManager;
 Cube g_CubeTest;
 //Camera g_CameraTest;
 
+XMFLOAT4 g_LightPosition = g_EyePosition;
+XMFLOAT4 g_EyeOrigin = g_EyePosition;
+
 
 void SetupImgui();
 void RenderImgui();
@@ -633,6 +636,72 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
     return 0;
 }
 
+void LightControl()
+{
+    float lightChangeRate = 0.01;
+    //-------------------------------------------------------------------
+    //INPUTS
+    //-------------------------------------------------------------------
+    /*A KEY - move light -X axis
+     *D KEY - move light +X axis
+     *W KEY - move light +Y axis
+     *S KEY - move light -Y axis
+     *E KEY - move light +Z axis
+     *Q KEY - move light -Z axis
+     *NUMPAD 0 - reset light position (light in front of object)
+     *NUMPAD 1 - set light to the left of object
+     *NUMPAD 2 - set light behind the object
+     *NUMPAD 3 - set light to the right of object
+     */
+     //------------------------------------------------------------------
+    if (GetAsyncKeyState(0x41))
+    {
+        g_LightPosition.x -= lightChangeRate;
+    }
+    if (GetAsyncKeyState(0x44))
+    {
+        g_LightPosition.x += lightChangeRate;
+    }
+    if (GetAsyncKeyState(0x57))
+    {
+        g_LightPosition.y += lightChangeRate;
+    }
+    if (GetAsyncKeyState(0x53))
+    {
+        g_LightPosition.y -= lightChangeRate;
+    }
+    if (GetAsyncKeyState(0x45))
+    {
+        g_LightPosition.z += lightChangeRate;
+    }
+    if (GetAsyncKeyState(0x51))
+    {
+        g_LightPosition.z -= lightChangeRate;
+    }
+    if (GetAsyncKeyState(VK_NUMPAD0))
+    {
+        g_LightPosition = g_EyeOrigin;
+    }
+    if (GetAsyncKeyState(VK_NUMPAD2))
+    {
+        g_LightPosition.x = g_EyeOrigin.x;
+        g_LightPosition.y = g_EyeOrigin.y;
+        g_LightPosition.z = -g_EyeOrigin.z;
+    }
+    if (GetAsyncKeyState(VK_NUMPAD1))
+    {
+        g_LightPosition.x = g_EyeOrigin.z;
+        g_LightPosition.y = g_EyeOrigin.y;
+        g_LightPosition.z = g_EyeOrigin.x;
+    }
+    if (GetAsyncKeyState(VK_NUMPAD3))
+    {
+        g_LightPosition.x = -g_EyeOrigin.z;
+        g_LightPosition.y = g_EyeOrigin.y;
+        g_LightPosition.z = g_EyeOrigin.x;
+    }
+}
+
 //--------------------------------------------------------------------------------------
 // Render a frame
 //--------------------------------------------------------------------------------------
@@ -660,16 +729,30 @@ void Render()
     g_pImmediateContext->ClearDepthStencilView( g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
 
+
+
+
     //CAMERA STUFFFFFFFFFFFFF
     g_CameraManager.SetCurrentCamera(CameraType::FRONT);
     g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
     g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());
+
+    //tie this in with imgui dude
+    LightControl();
+
+
+
 
 
 	// Update variables for a cube
 	g_GameObject.update(t);
     g_CubeTest.SetRotation(0, 0.5f, 0);
     g_CubeTest.Update(0.0f);
+
+
+    //RenderImgui();
+
+
 
     // Update variables for the cube
 	XMMATRIX* mGO = g_GameObject.getTransform();
@@ -699,7 +782,7 @@ void Render()
 	
 
 	// set up the light
-	XMFLOAT4 LightPosition(g_EyePosition);
+    XMFLOAT4 LightPosition(g_LightPosition);//g_EyePosition);
 	light.Position = LightPosition;
 	XMVECTOR LightDirection = XMVectorSet(-LightPosition.x, -LightPosition.y, -LightPosition.z, 0.0f);
 	LightDirection = XMVector3Normalize(LightDirection);
@@ -721,7 +804,7 @@ void Render()
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
 	g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
-    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE2));
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
 	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
