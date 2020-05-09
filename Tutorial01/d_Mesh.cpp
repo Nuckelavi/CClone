@@ -45,7 +45,7 @@ void Mesh::Draw(ID3D11DeviceContext* pContext)
 	pContext->DrawIndexed(NUM_INDICES, 0, 0);
 }
 
-void Mesh::SetPosition(DirectX::XMFLOAT3 position)
+void Mesh::SetPosition(DirectX::XMFLOAT3& position)
 {
 	_position = position;
 }

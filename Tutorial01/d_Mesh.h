@@ -42,7 +42,7 @@ public:
 	void Draw(ID3D11DeviceContext* pContext);
 
 	//set
-	void SetPosition(DirectX::XMFLOAT3 position);
+	void SetPosition(DirectX::XMFLOAT3& position);
 	void SetTranslation(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
 	void SetScale(float x, float y, float z);

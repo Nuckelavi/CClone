@@ -21,6 +21,8 @@
 #include "d_LightManager.h"
 #include "d_TextureManager.h"
 
+#include "d_GraphicsCube.h"
+
 using namespace std;
 
 typedef vector<DrawableGameObject*> vecDrawables;

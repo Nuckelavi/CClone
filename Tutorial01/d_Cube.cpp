@@ -133,4 +133,6 @@ HRESULT Cube::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext)
 	if (FAILED(hr))
 		return hr;
 
+
+	return hr;
 }

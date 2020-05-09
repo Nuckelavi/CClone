@@ -86,7 +86,7 @@ TextureManager g_TextureManager;
 Cube g_CubeTest;
 //Camera g_CameraTest;
 
-
+GraphicsCube g_GraphCubeTest;
 
 //delete after creating effects
 ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
@@ -428,6 +428,10 @@ HRESULT InitDevice()
     if (FAILED(hr))
         return hr;
 
+    hr = g_GraphCubeTest.InitMesh(g_pd3dDevice, g_pImmediateContext);
+    if (FAILED(hr))
+        return hr;
+
     return S_OK;
 }
 
@@ -616,7 +620,9 @@ void CleanupDevice()
 
     if (g_pVertexLayoutPOM && g_pVertexLayoutPOM != nullptr) g_pVertexLayoutPOM->Release();
     if (g_pVertexShaderPOM && g_pVertexShaderPOM != nullptr) g_pVertexShaderPOM->Release();
-    //if (g_pPixelShaderPOM) g_pPixelShaderPOM->Release();
+    if (g_pPixelShaderPOM) g_pPixelShaderPOM->Release();
+    if (g_pConstantBufferPOM) g_pConstantBufferPOM->Release();
+    if (g_pLightConstantBuffer2) g_pLightConstantBuffer2->Release();
 
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
@@ -723,6 +729,7 @@ void Render()
 
     // Update variables for the cube
 	XMMATRIX* mGO = g_GameObject.getTransform();
+    mGO = g_CubeTest.GetWorld();
 
     ConstantBuffer cb1;
 	cb1.mWorld = XMMatrixTranspose( *mGO);
@@ -765,6 +772,7 @@ void Render()
 
     int chosenEffect = 0;
     ConstantBufferPOM cbPOM;
+    mGO = g_GraphCubeTest.GetWorld();
     cbPOM.mWorld = XMMatrixTranspose(*mGO);
     cbPOM.mView = XMMatrixTranspose(g_View);
     cbPOM.mProjection = XMMatrixTranspose(g_Projection);
@@ -783,58 +791,47 @@ void Render()
 
 
     // Render the cube
+    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
 
-    //set effect's main constant buffer, vertes and pixel shaders
-	g_pImmediateContext->VSSetShader( g_pVertexShader, nullptr, 0 );
-	g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_pConstantBuffer );
-	g_pImmediateContext->PSSetShader( g_pPixelShader, nullptr, 0 );
-
-    //set effect's main constant buffer, vertes and pixel shaders
-    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    //set constant buffers
     g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-
-    //set other constant buffers
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
 	g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
+    //set effect's vertex and pixel shaders
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
     //set textures and sampler
-    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::BRICK));
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
 	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
-
-
-
-    /*g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
-    g_pImmediateContext->PSSetShaderResources(0, 3, &g_pTextureRVs[(int)TextureGroup::BRICK]);
-    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);*/
-
-
-    //render DrawableGameObject
-    /*g_GameObject.setVertexBuffer(g_pImmediateContext);
-    g_GameObject.setIndexBuffer(g_pImmediateContext);
-    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-	g_pImmediateContext->DrawIndexed( 36, 0, 0 );*/
-
-
-    //render cube
-    mGO = g_CubeTest.GetWorld();
-    cb1.mWorld = XMMatrixTranspose(*mGO);
-    cbPOM.mWorld = XMMatrixTranspose(*mGO);
-    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-
-    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
-    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
-    //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
     g_CubeTest.Draw(g_pImmediateContext);
 
+    
+
+    // render graphics cube
+    /*g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
+
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
+
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
+    g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
+    g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
+    
+    
+    //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+    g_GraphCubeTest.Draw(g_pImmediateContext);*/
 
 
-    RenderImgui();
+
+    //RenderImgui();
 
     // Present our back buffer to our front buffer
     g_pSwapChain->Present( 0, 0 );
@@ -959,19 +956,19 @@ HRESULT SetupPomShader()
     int texCount = 0;
     const wchar_t* texFilePaths[] =
     {
-        L"Resources\\stone.dds", //0
-        //L"Resources\\conenormal.dds",
-        L"Resources\\stone_texture.dds", //1
-        L"Resources\\stone_normalMap.dds",
-        L"Resources\\stone_heightMap.dds",
+        //L"Resources\\stone.dds", //0
+        ////L"Resources\\conenormal.dds",
+        //L"Resources\\stone_texture.dds", //1
+        //L"Resources\\stone_normalMap.dds",
+        //L"Resources\\stone_heightMap.dds",
         L"Resources\\bricks_TEX.dds", //4
         L"Resources\\bricks_NORM.dds",
         L"Resources\\bricks_DISP.dds",
-        L"Resources\\toybox_TEX.dds", //7
-        L"Resources\\toybox_NORM.dds",
-        L"Resources\\toybox_DISP.dds"
+        //L"Resources\\toybox_TEX.dds", //7
+        //L"Resources\\toybox_NORM.dds",
+        //L"Resources\\toybox_DISP.dds"
     };
-
+    g_texNum = 3;
     for (int i = 0; i < g_texNum; ++i)
     {
         hr = CreateDDSTextureFromFile(g_pd3dDevice, texFilePaths[i], nullptr, &g_pTextureRVs[texCount]);//&g_pTextureRV);

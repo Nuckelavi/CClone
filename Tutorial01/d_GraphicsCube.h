@@ -10,10 +10,20 @@
 #include "structures.h"
 
 
-using namespace DirectX;
-
 class GraphicsCube
 {
+private:
+
+	DirectX::XMMATRIX _world;
+	DirectX::XMFLOAT3 _position;
+
+	static constexpr int NUM_VERTICES = 36;
+	//bool rotateX = true;
+
+	ID3D11Buffer* _pVertexBuffer;
+	ID3D11Buffer* _pIndexBuffer;
+
+
 public:
 	GraphicsCube();
 	~GraphicsCube();
@@ -21,32 +31,22 @@ public:
 	HRESULT	InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext);
 	void Update(float t);
 	void Draw(ID3D11DeviceContext* pContext);
-	ID3D11Buffer* getVertexBuffer() { return m_pVertexBuffer; }
-	ID3D11Buffer* const* getPpVertexBuffer() { return &m_pVertexBuffer; }
-	ID3D11Buffer* getIndexBuffer() { return m_pIndexBuffer; }
-	ID3D11ShaderResourceView** getTextureResourceView() { return &m_pTextureResourceView; }
-	XMMATRIX* getTransform() { return &m_World; }
-	ID3D11SamplerState** getTextureSamplerState() { return &m_pSamplerLinear; }
-	MaterialPropertiesConstantBuffer	getMaterial() { return m_material; }
-	void								setPosition(XMFLOAT3 position);
 
-	void CalculateTangentBinormal2(SimpleVertex v0, SimpleVertex v1, SimpleVertex v2, XMFLOAT3& normal, XMFLOAT3& tangent, XMFLOAT3& binormal);
-	void CalculateTangentBinormal3(SimpleVertex v0, SimpleVertex v1, SimpleVertex v2, XMFLOAT3& normal, XMFLOAT3& tangent, XMFLOAT3& binormal);
-	void CalculateModelVectors(SimpleVertex* vertices, int vertexCount);
 
-	void FlipTangents(const int startPt, SimpleVertex* vertices, const int vertexCount, const int cluster);
 
-private:
+	void CalculateTangentBinormal2(POMVertex v0, POMVertex v1, POMVertex v2, 
+		DirectX::XMFLOAT3& normal, DirectX::XMFLOAT3& tangent, DirectX::XMFLOAT3& binormal);
+	void CalculateTangentBinormal3(POMVertex v0, POMVertex v1, POMVertex v2, 
+		DirectX::XMFLOAT3& normal, DirectX::XMFLOAT3& tangent, DirectX::XMFLOAT3& binormal);
+	void CalculateModelVectors(POMVertex* vertices, int vertexCount);
 
-	XMMATRIX							m_World;
+	void FlipTangents(const int startPt, POMVertex* vertices, const int vertexCount, const int cluster);
 
-	ID3D11Buffer* m_pVertexBuffer;
-	ID3D11Buffer* m_pIndexBuffer;
-	ID3D11ShaderResourceView* m_pTextureResourceView;
-	ID3D11SamplerState* m_pSamplerLinear;
-	MaterialPropertiesConstantBuffer	m_material;
-	XMFLOAT3							m_position;
 
-	bool rotateX = true;
+	void SetPosition(DirectX::XMFLOAT3& position);
+	void SetVertexBuffer(ID3D11DeviceContext* pContext);
+	void SetIndexBuffer(ID3D11DeviceContext* pContext);
+
+	DirectX::XMMATRIX* GetWorld() { return &_world; }
 };
 
