@@ -4,6 +4,7 @@
 
 #include "d_Camera.h"
 #include "d_CameraFlying.h"
+#include "d_CameraOrbit.h"
 
 enum class CameraType
 {

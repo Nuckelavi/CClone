@@ -39,9 +39,8 @@ void CameraManager::InitCameras(int windowWidth, int windowHeight)
             XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f),
             windowWidth, windowHeight, 1.0f, 100.0f);
 
-    //EDIT THIS ONE TO USE CamerOrbit CLASS
     _pCameras[(int)CameraType::ORBIT] = 
-        new Camera(XMFLOAT4(0.0f, 0.0f, 4.0f, 0.0f),
+        new CameraOrbit(XMFLOAT4(0.0f, 0.0f, 4.0f, 0.0f),
             XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f),
             XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f),
             windowWidth, windowHeight, 1.0f, 100.0f);

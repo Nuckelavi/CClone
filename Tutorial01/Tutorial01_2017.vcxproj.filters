@@ -46,6 +46,7 @@
     <ClCompile Include="Camera\d_CameraOrbit.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
+    <ClCompile Include="d_Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -124,6 +125,7 @@
     <ClInclude Include="Camera\d_CameraOrbit.h">
       <Filter>Camera</Filter>
     </ClInclude>
+    <ClInclude Include="d_Utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">

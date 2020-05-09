@@ -773,7 +773,7 @@ void Render()
 
 
 
-    //RenderImgui();
+    RenderImgui();
 
     // Present our back buffer to our front buffer
     g_pSwapChain->Present( 0, 0 );
@@ -813,6 +813,6 @@ void RenderImgui()
 void InitCamera()
 {
     g_CameraManager.InitCameras(g_viewWidth, g_viewHeight);
-    g_CameraManager.SetCurrentCamera(CameraType::FRONT);
+    g_CameraManager.SetCurrentCamera(CameraType::ORBIT);
 
 }
