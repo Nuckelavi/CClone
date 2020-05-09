@@ -33,7 +33,8 @@ public:
 	void ComputeRightVector();
 	void CalculateViewProj();
 	void UpdateViewProj();
-	void Update();
+	virtual void Update();
+	virtual void ProcessInput();
 
 	void Reshape(int wwidth, int wheight,
 		float nearDepth, float farDepth);

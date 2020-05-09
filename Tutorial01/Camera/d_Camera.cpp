@@ -108,6 +108,10 @@ void Camera::Update()
 	UpdateViewProj();
 }
 
+void Camera::ProcessInput()
+{
+}
+
 void Camera::Reshape(int wwidth, int wheight, float nearDepth, float farDepth)
 {
 	SetWindow(wwidth, wheight);

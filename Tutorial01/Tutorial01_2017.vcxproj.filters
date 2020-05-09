@@ -40,6 +40,12 @@
     </ClCompile>
     <ClCompile Include="d_TextureManager.cpp" />
     <ClCompile Include="d_LightManager.cpp" />
+    <ClCompile Include="Camera\d_CameraFlying.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera\d_CameraOrbit.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -112,6 +118,12 @@
     </ClInclude>
     <ClInclude Include="d_TextureManager.h" />
     <ClInclude Include="d_LightManager.h" />
+    <ClInclude Include="Camera\d_CameraFlying.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera\d_CameraOrbit.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">

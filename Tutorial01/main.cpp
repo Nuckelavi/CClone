@@ -667,9 +667,12 @@ void Render()
 
 
     //CAMERA STUFFFFFFFFFFFFF
-    g_CameraManager.SetCurrentCamera(CameraType::FRONT);
-    g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
-    g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());
+    //g_CameraManager.SetCurrentCamera(CameraType::FIRST_PERSON);
+    /*g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
+    g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());*/
+    g_CameraManager.UpdateCamera();
+    g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera()->GetView());
+    g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera()->GetProjection());
 
 
 
@@ -810,6 +813,6 @@ void RenderImgui()
 void InitCamera()
 {
     g_CameraManager.InitCameras(g_viewWidth, g_viewHeight);
-    g_CameraManager.SetCurrentCamera(CameraType::TOPDOWN);
+    g_CameraManager.SetCurrentCamera(CameraType::FRONT);
 
 }
