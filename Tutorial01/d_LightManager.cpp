@@ -2,7 +2,8 @@
 
 LightManager::LightManager(DirectX::XMFLOAT4& light) :
 	_lightPosition(light),
-	_originalPosition(light)
+	_originalPosition(light),
+    _enabled(true)
 {
 }
 
@@ -68,6 +69,11 @@ void LightManager::Update()
         _lightPosition.x = -_originalPosition.z;
         _lightPosition.y = _originalPosition.y;
         _lightPosition.z = _originalPosition.x;
+    }
+
+    if (GetAsyncKeyState(0x4C))
+    {
+        _enabled = (!_enabled);
     }
 }
 

@@ -683,7 +683,7 @@ void Render()
 
 	// Update variables for a cube
 	g_GameObject.update(t);
-    g_CubeTest.SetRotation(0, 0.5f, 0);
+    //g_CubeTest.SetRotation(0, 0.5f, 0);
     g_CubeTest.Update(0.0f);
 
 
@@ -709,7 +709,7 @@ void Render()
 	g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
 
 	Light light;
-	light.Enabled = static_cast<int>(true);
+	light.Enabled = static_cast<int>(g_LightManager.IsEnabled());
 	light.LightType = PointLight;
 	light.Color = XMFLOAT4(Colors::White);
 	light.SpotAngle = XMConvertToRadians(45.0f);
