@@ -118,11 +118,37 @@ struct ConstantBufferPOM
 	int nEffectID;
 };
 
+struct LightPropertiesConstantBuffer2
+{
+	LightPropertiesConstantBuffer2() : 
+		EyePosition(0, 0, 0, 1),
+		CameraPosition(EyePosition),
+		GlobalAmbient(0.2f, 0.2f, 0.8f, 1.0f)
+	{}
+
+	DirectX::XMFLOAT4   EyePosition;
+	DirectX::XMFLOAT4   CameraPosition;
+	//----------------------------------- (16 byte boundary)
+	DirectX::XMFLOAT4   GlobalAmbient;
+	//----------------------------------- (16 byte boundary)
+	Light               Lights[MAX_LIGHTS]; // 80 * 8 bytes
+};  // Total:                                  672 bytes (42 * 16)
+
+
 struct SimpleVertex
 {
 	DirectX::XMFLOAT3 Pos;
 	DirectX::XMFLOAT3 Normal;
 	DirectX::XMFLOAT2 TexCoord;
+};
+
+struct POMVertex
+{
+	DirectX::XMFLOAT3 Pos;
+	DirectX::XMFLOAT3 Normal;
+	DirectX::XMFLOAT2 TexCoord;
+	DirectX::XMFLOAT3 Tangent = { 0, 0, 0 };
+	DirectX::XMFLOAT3 Bitangent = { 0, 0, 0 };
 };
 
 //cbuffer ConstantBuffer : register(b0)

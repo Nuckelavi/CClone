@@ -88,9 +88,20 @@ Cube g_CubeTest;
 
 
 
+//delete after creating effects
+ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
+ID3D11PixelShader* g_pPixelShaderPOM = nullptr;
+ID3D11InputLayout* g_pVertexLayoutPOM = nullptr;
+ID3D11Buffer* g_pConstantBufferPOM = nullptr;
+ID3D11Buffer* g_pLightConstantBuffer2 = nullptr;
+int g_texNum = 10;
+ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_texNum];
+
+
 void SetupImgui();
 void RenderImgui();
 void InitCamera();
+HRESULT SetupPomShader();
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -496,6 +507,14 @@ HRESULT		InitMesh()
 		return hr;
 
 
+
+    SetupPomShader();
+    
+
+
+
+
+
 	// Set primitive topology
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -565,6 +584,7 @@ HRESULT		InitWorld(int width, int height)
 	// Initialize the projection matrix
 	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (FLOAT)height, 0.01f, 100.0f);
 
+    //initialise camera
     InitCamera();
 
 	return S_OK;
@@ -594,9 +614,16 @@ void CleanupDevice()
     if( g_pd3dDevice1 ) g_pd3dDevice1->Release();
     if( g_pd3dDevice ) g_pd3dDevice->Release();
 
+    if (g_pVertexLayoutPOM && g_pVertexLayoutPOM != nullptr) g_pVertexLayoutPOM->Release();
+    if (g_pVertexShaderPOM && g_pVertexShaderPOM != nullptr) g_pVertexShaderPOM->Release();
+    //if (g_pPixelShaderPOM) g_pPixelShaderPOM->Release();
+
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
+
+
+    
 }
 
 
@@ -736,6 +763,24 @@ void Render()
 
 
 
+    int chosenEffect = 0;
+    ConstantBufferPOM cbPOM;
+    cbPOM.mWorld = XMMatrixTranspose(*mGO);
+    cbPOM.mView = XMMatrixTranspose(g_View);
+    cbPOM.mProjection = XMMatrixTranspose(g_Projection);
+    cbPOM.fHeightScale = 0.15f;//0.05f;
+    cbPOM.nMinSamples = 8;
+    cbPOM.nMaxSamples = 32;
+    cbPOM.nEffectID = (int)chosenEffect;
+    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+
+    LightPropertiesConstantBuffer2 lightProperties2;
+    lightProperties2.EyePosition = LightPosition;
+    lightProperties2.CameraPosition = LightPosition;
+    lightProperties2.Lights[0] = light;
+    g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
+
+
 
     // Render the cube
 
@@ -744,14 +789,28 @@ void Render()
 	g_pImmediateContext->VSSetConstantBuffers( 0, 1, &g_pConstantBuffer );
 	g_pImmediateContext->PSSetShader( g_pPixelShader, nullptr, 0 );
 
+    //set effect's main constant buffer, vertes and pixel shaders
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
     //set other constant buffers
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
 	g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
     //set textures and sampler
-    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::BRICK));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
 	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
+
+
+
+    /*g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
+    g_pImmediateContext->PSSetShaderResources(0, 3, &g_pTextureRVs[(int)TextureGroup::BRICK]);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);*/
 
 
     //render DrawableGameObject
@@ -764,7 +823,9 @@ void Render()
     //render cube
     mGO = g_CubeTest.GetWorld();
     cb1.mWorld = XMMatrixTranspose(*mGO);
+    cbPOM.mWorld = XMMatrixTranspose(*mGO);
     g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
 
     g_CubeTest.SetVertexBuffer(g_pImmediateContext);
     g_CubeTest.SetIndexBuffer(g_pImmediateContext);
@@ -815,4 +876,111 @@ void InitCamera()
     g_CameraManager.InitCameras(g_viewWidth, g_viewHeight);
     g_CameraManager.SetCurrentCamera(CameraType::ORBIT);
 
+}
+
+HRESULT SetupPomShader()
+{
+    // Compile the vertex shader
+    ID3DBlob* pVSBlob2 = nullptr;
+    HRESULT hr = CompileShaderFromFile(L"d_POMShader.fx", "VS", "vs_4_0", &pVSBlob2);
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr,
+            L"The POM Vertex Shader FX file cannot be compiled.", L"Error", MB_OK);
+        return hr;
+    }
+
+    // Create the vertex shader
+    hr = g_pd3dDevice->CreateVertexShader(pVSBlob2->GetBufferPointer(), pVSBlob2->GetBufferSize(), nullptr, &g_pVertexShaderPOM);
+    if (FAILED(hr))
+    {
+        pVSBlob2->Release();
+        return hr;
+    }
+
+    // Define the input layout
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+    UINT numElements = ARRAYSIZE(layout);
+
+    // Create the input layout
+    hr = g_pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob2->GetBufferPointer(),
+        pVSBlob2->GetBufferSize(), &g_pVertexLayoutPOM);
+    pVSBlob2->Release();
+    if (FAILED(hr))
+        return hr;
+
+    // Set the input layout
+    //g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
+
+    // Compile the pixel shader
+    ID3DBlob* pPSBlob2 = nullptr;
+    hr = CompileShaderFromFile(L"d_POMShader.fx", "PS", "ps_4_0", &pPSBlob2);
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr,
+            L"The POM Pixel Shader FX file cannot be compiled.", L"Error", MB_OK);
+        return hr;
+    }
+
+    // Create the pixel shader
+    hr = g_pd3dDevice->CreatePixelShader(pPSBlob2->GetBufferPointer(), pPSBlob2->GetBufferSize(), nullptr, &g_pPixelShaderPOM);
+    pPSBlob2->Release();
+    if (FAILED(hr))
+        return hr;
+
+
+    // Create the constant buffer
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(ConstantBufferPOM);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pConstantBufferPOM);
+    if (FAILED(hr))
+        return hr;
+
+
+    // Create the light constant buffer
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(LightPropertiesConstantBuffer2);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pLightConstantBuffer2);
+    if (FAILED(hr))
+        return hr;
+
+    int texCount = 0;
+    const wchar_t* texFilePaths[] =
+    {
+        L"Resources\\stone.dds", //0
+        //L"Resources\\conenormal.dds",
+        L"Resources\\stone_texture.dds", //1
+        L"Resources\\stone_normalMap.dds",
+        L"Resources\\stone_heightMap.dds",
+        L"Resources\\bricks_TEX.dds", //4
+        L"Resources\\bricks_NORM.dds",
+        L"Resources\\bricks_DISP.dds",
+        L"Resources\\toybox_TEX.dds", //7
+        L"Resources\\toybox_NORM.dds",
+        L"Resources\\toybox_DISP.dds"
+    };
+
+    for (int i = 0; i < g_texNum; ++i)
+    {
+        hr = CreateDDSTextureFromFile(g_pd3dDevice, texFilePaths[i], nullptr, &g_pTextureRVs[texCount]);//&g_pTextureRV);
+        if (FAILED(hr))
+            return hr;
+        ++texCount;
+    }
+
+
+
+    return hr;
 }

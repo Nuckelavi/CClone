@@ -11,9 +11,9 @@
 //--------------------------------------------------------------------------------------
 cbuffer ConstantBuffer : register( b0 )
 {
-	matrix World;
-	matrix View;
-	matrix Projection;
+	matrix mWorld;
+	matrix mView;
+	matrix mProjection;
 
 	float fHeightScale;
 	int nMinSamples;
@@ -162,9 +162,9 @@ LightingResult DoPointLight(Light light, float3 vertexToEye, float4 vertexPos, f
 	return result;
 }
 
-LightingResult ComputeLighting(float4 vertexPos, float3 N)
+LightingResult ComputeLighting(float4 vertexPos, float3 N, float3 vertexToEye)
 {
-	float3 vertexToEye = normalize(EyePosition - vertexPos).xyz;
+	//float3 vertexToEye = normalize(EyePosition - vertexPos).xyz;
 
 	LightingResult totalResult = { { 0, 0, 0, 0 },{ 0, 0, 0, 0 } };
 
@@ -231,7 +231,7 @@ float3 NormalMapping(float2 texCoord, float3x3 TBN)
 	return bumpedNorm;
 }
 
-float2 SimpleParallax(float2 texCoord, float3 toEye)
+/*float2 SimpleParallax(float2 texCoord, float3 toEye)
 {
 	float height = txDiffuse[2].Sample(samLinear, texCoord).r;
 	//assumed that scaled height = -biased height -> h * s + b = h * s - s = s(h - 1)
@@ -252,7 +252,7 @@ float2 ParallaxOcclusion(float2 texCoord, float3 normal, float3 toEye)
 	float2 parallaxLimit = fHeightScale * toEyeTS.xy;
 
 	//calculate number of samples
-	//normal = (0, 0, 1) in tangent space essentially, if dot product converges to 0, take more samples because it means view vec and normal are perpendicular
+	//normal = (0, 0, 1) in tangent space essentially, if dot product converges to 0, take more samples because it means mView vec and normal are perpendicular
 	int numSamples = (int)lerp(nMaxSamples, nMinSamples, abs(dot(toEyeTS, normal)));
 	float zStep = 1.0f / (float)numSamples;
 
@@ -364,7 +364,7 @@ float ParallaxSelfShadowing(float3 toLight, float2 texCoord, bool softShadow)
 	}
 
 	return shadowFactor;
-}
+}*/
 
 
 //--------------------------------------------------------------------------------------
@@ -373,18 +373,20 @@ float ParallaxSelfShadowing(float3 toLight, float2 texCoord, bool softShadow)
 PS_INPUT VS( VS_INPUT input )
 {
     PS_INPUT output = (PS_INPUT)0;
-    output.Pos = mul( input.Pos, World );
+	
+    output.Pos = mul( input.Pos, mWorld );
 	output.worldPos = output.Pos;
-    output.Pos = mul( output.Pos, View );
+    output.Pos = mul( output.Pos, mView );
 	output.viewPos = output.Pos;
-    output.Pos = mul( output.Pos, Projection );
+    output.Pos = mul( output.Pos, mProjection );
 
-	// multiply the normal by the world transform (to go from model space to world space)
-	output.Norm = mul(float4(input.Norm, 1), World).xyz;
-	output.Tangent = mul(float4(input.Tangent, 1), World).xyz;
-	output.Binormal = mul(float4(input.Binormal, 1), World).xyz;
+	// multiply the normal by the mWorld transform (to go from model space to mWorld space)
+	output.Norm = mul(float4(input.Norm, 1), mWorld).xyz;
+	output.Tangent = mul(float4(input.Tangent, 1), mWorld).xyz;
+	output.Binormal = mul(float4(input.Binormal, 1), mWorld).xyz;
 
 	output.Tex = input.Tex;
+
     
     return output;
 }
@@ -392,7 +394,7 @@ PS_INPUT VS( VS_INPUT input )
 
 float4 NormalMapped(PS_INPUT IN)
 {
-	float3 vertexToLight = normalize(LightPosition - IN.worldPos).xyz;
+	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
 
 	IN.Norm = normalize(IN.Norm);
 
@@ -422,7 +424,7 @@ float4 NormalMapped(PS_INPUT IN)
 	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
 	return finalColor;
 }
-
+/*
 float4 SimpleParallaxMapped(PS_INPUT IN)
 {
 	float3 vertexToLight = normalize(LightPosition - IN.worldPos).xyz;
@@ -556,7 +558,7 @@ float4 SelfShadowed(PS_INPUT IN)
 
 
 	return finalColor;
-}
+}*/
 
 
 //--------------------------------------------------------------------------------------
@@ -565,11 +567,11 @@ float4 SelfShadowed(PS_INPUT IN)
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
-	if (iEffectID == 0 || iEffectID == 10)
+	if (nEffectID == 0 || nEffectID == 10)
 	{
 		return NormalMapped(IN);
 	}
-	if (iEffectID == 1)
+	/*if (iEffectID == 1)
 	{
 		return ParallaxMapped(IN);
 	}
@@ -581,15 +583,16 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	{
 		return SelfShadowed(IN);
 	}
+	*/
 
-
-	return { 1, 1, 1, 1 };
+	float4 col = float4(0, 0, 0, 1);
+	return col;
 }
 
 //--------------------------------------------------------------------------------------
 // PSSolid - render a solid color
 //--------------------------------------------------------------------------------------
-float4 PSSolid(PS_INPUT input) : SV_Target
-{
-	return vOutputColor;
-}
+//float4 PSSolid(PS_INPUT input) : SV_Target
+//{
+//	return vOutputColor;
+//}

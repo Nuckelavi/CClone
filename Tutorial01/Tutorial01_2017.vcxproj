@@ -360,6 +360,7 @@
     <ClInclude Include="d_Block.h" />
     <ClInclude Include="d_Chunk.h" />
     <ClInclude Include="d_Cube.h" />
+    <ClInclude Include="d_GraphicsCube.h" />
     <ClInclude Include="d_Grid.h" />
     <ClInclude Include="d_LightManager.h" />
     <ClInclude Include="d_Mesh.h" />
@@ -390,6 +391,7 @@
     <ClCompile Include="DrawableGameObject.cpp" />
     <ClCompile Include="d_Block.cpp" />
     <ClCompile Include="d_Cube.cpp" />
+    <ClCompile Include="d_GraphicsCube.cpp" />
     <ClCompile Include="d_Grid.cpp" />
     <ClCompile Include="d_LightManager.cpp" />
     <ClCompile Include="d_Mesh.cpp" />
