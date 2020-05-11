@@ -231,7 +231,7 @@ float3 NormalMapping(float2 texCoord, float3x3 TBN)
 	return bumpedNorm;
 }
 
-/*float2 SimpleParallax(float2 texCoord, float3 toEye)
+float2 SimpleParallax(float2 texCoord, float3 toEye)
 {
 	float height = txDiffuse[2].Sample(samLinear, texCoord).r;
 	//assumed that scaled height = -biased height -> h * s + b = h * s - s = s(h - 1)
@@ -364,7 +364,7 @@ float ParallaxSelfShadowing(float3 toLight, float2 texCoord, bool softShadow)
 	}
 
 	return shadowFactor;
-}*/
+}
 
 
 //--------------------------------------------------------------------------------------
@@ -424,10 +424,11 @@ float4 NormalMapped(PS_INPUT IN)
 	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
 	return finalColor;
 }
-/*
+
+
 float4 SimpleParallaxMapped(PS_INPUT IN)
 {
-	float3 vertexToLight = normalize(LightPosition - IN.worldPos).xyz;
+	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
 	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
 
 	IN.Norm = normalize(IN.Norm);
@@ -462,14 +463,14 @@ float4 SimpleParallaxMapped(PS_INPUT IN)
 	{
 		texColor = txDiffuse[0].Sample(samLinear, parallaxTex);
 	}
-
+	
 	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
 	return finalColor;
 }
 
 float4 ParallaxOcclusionMapped(PS_INPUT IN)
 {
-	float3 vertexToLight = normalize(LightPosition - IN.worldPos).xyz;
+	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
 	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
 
 	IN.Norm = normalize(IN.Norm);
@@ -511,11 +512,11 @@ float4 ParallaxOcclusionMapped(PS_INPUT IN)
 
 float4 SelfShadowed(PS_INPUT IN)
 {
-	float3 vertexToLight = normalize(LightPosition - IN.worldPos).xyz;
+	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
 	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
 
 	IN.Norm = normalize(IN.Norm);
-
+	
 	//!!! be careful about which TBN matrix function you're using. in most cases the regular one is fine,
 	//but for the cube in DrawableGameObject.cpp, use computeTBNMatrixB
 	//float3x3 TBN = computeTBNMatrix(IN.Norm, IN.Tangent);
@@ -526,7 +527,7 @@ float4 SelfShadowed(PS_INPUT IN)
 
 
 	bool softShadow = false;
-	if (iEffectID == 4)
+	if (nEffectID == 4)
 	{
 		softShadow = true;
 	}
@@ -556,9 +557,8 @@ float4 SelfShadowed(PS_INPUT IN)
 	float shadowFactor = ParallaxSelfShadowing(vertexToLightTS, parallaxTex, softShadow);
 	float4 finalColor = (emissive + ambient + diffuse * shadowFactor + specular * shadowFactor) * texColor;
 
-
 	return finalColor;
-}*/
+}
 
 
 //--------------------------------------------------------------------------------------
@@ -567,23 +567,23 @@ float4 SelfShadowed(PS_INPUT IN)
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
-	if (nEffectID == 0 || nEffectID == 10)
+	/*if (nEffectID == 0 || nEffectID == 10)
 	{
 		return NormalMapped(IN);
 	}
-	/*if (iEffectID == 1)
+	if (nEffectID == 1)
 	{
-		return ParallaxMapped(IN);
+		return SimpleParallaxMapped(IN);
 	}
-	if (iEffectID == 2)
+	if (nEffectID == 2)
 	{
 		return ParallaxOcclusionMapped(IN);
 	}
-	if (iEffectID > 2)
+	if (nEffectID > 2)
 	{
 		return SelfShadowed(IN);
-	}
-	*/
+	}*/
+	return SimpleParallaxMapped(IN);
 
 	float4 col = float4(0, 0, 0, 1);
 	return col;

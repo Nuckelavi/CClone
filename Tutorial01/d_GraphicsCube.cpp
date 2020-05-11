@@ -4,7 +4,7 @@ using namespace DirectX;
 
 GraphicsCube::GraphicsCube() :
 	_world(XMMatrixIdentity()),
-	_position(XMFLOAT3(-3.0f, 0, 0)),
+	_position(XMFLOAT3(0.0f, 0, 0)),
 	_pVertexBuffer(nullptr),
 	_pIndexBuffer(nullptr)
 {

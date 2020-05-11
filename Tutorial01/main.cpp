@@ -770,21 +770,21 @@ void Render()
 
 
 
-    int chosenEffect = 0;
+    int chosenEffect = 2;
     ConstantBufferPOM cbPOM;
-    mGO = g_GraphCubeTest.GetWorld();
+    //mGO = g_GraphCubeTest.GetWorld();
     cbPOM.mWorld = XMMatrixTranspose(*mGO);
     cbPOM.mView = XMMatrixTranspose(g_View);
     cbPOM.mProjection = XMMatrixTranspose(g_Projection);
     cbPOM.fHeightScale = 0.15f;//0.05f;
     cbPOM.nMinSamples = 8;
     cbPOM.nMaxSamples = 32;
-    cbPOM.nEffectID = (int)chosenEffect;
+    cbPOM.nEffectID = 0;
     g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
 
     LightPropertiesConstantBuffer2 lightProperties2;
     lightProperties2.EyePosition = LightPosition;
-    lightProperties2.CameraPosition = LightPosition;
+    lightProperties2.CameraPosition = g_CameraManager.GetCurrentCamera()->Position();
     lightProperties2.Lights[0] = light;
     g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
 
@@ -809,12 +809,12 @@ void Render()
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
 	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
-    g_CubeTest.Draw(g_pImmediateContext);
+    //g_CubeTest.Draw(g_pImmediateContext);
 
     
 
     // render graphics cube
-    /*g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
     g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
 
     g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
@@ -827,7 +827,7 @@ void Render()
     
     
     //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-    g_GraphCubeTest.Draw(g_pImmediateContext);*/
+    g_GraphCubeTest.Draw(g_pImmediateContext);
 
 
 
