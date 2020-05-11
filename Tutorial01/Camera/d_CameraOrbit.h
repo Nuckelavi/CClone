@@ -1,5 +1,8 @@
 #pragma once
 
+//TO DO:
+//make orbit camera look at specific object at all times.
+
 #include "d_Camera.h"
 
 class CameraOrbit : public Camera
