@@ -3,11 +3,12 @@
 
 using namespace DirectX;
 
-CameraOrbit::CameraOrbit(DirectX::XMFLOAT4 position, DirectX::XMFLOAT4 forward, 
-	DirectX::XMFLOAT4 up, int wwidth, int wheight, float nearDepth, 
-	float farDepth, float moveRate, float rotRate) :
+CameraOrbit::CameraOrbit(DirectX::XMFLOAT4 position, DirectX::XMFLOAT4 forward,
+	DirectX::XMFLOAT4 up, int wwidth, int wheight, float nearDepth,
+	float farDepth, float maxZoom, float moveRate, float rotRate) :
 	Camera(position, forward, up, wwidth, wheight, nearDepth, farDepth),
-	_movementRate(moveRate),
+	_maxZoom(maxZoom),
+	_zoomRate(moveRate),
 	_rotationRate(rotRate)
 {
 }
@@ -52,6 +53,15 @@ void CameraOrbit::ProcessInput()
 	{
 		Rotate(-_rotationRate, true);
 	}
+
+	if (GetAsyncKeyState(VK_NUMPAD8))
+	{
+		Zoom(true);
+	}
+	if (GetAsyncKeyState(VK_NUMPAD5))
+	{
+		Zoom(false);
+	}
 }
 
 void CameraOrbit::Rotate(float rotRate, bool isHorizontal)
@@ -74,15 +84,15 @@ void CameraOrbit::Rotate(float rotRate, bool isHorizontal)
 
 void CameraOrbit::ScaleMovementRateUp()
 {
-	_movementRate += _moveRateOffset;
+	_zoomRate += _moveZoomOffset;
 	_rotationRate += _rotRateOffset;
 }
 
 void CameraOrbit::ScaleMovementRateDown()
 {
-	if (_movementRate >= _moveRateOffset)
+	if (_zoomRate >= _moveZoomOffset)
 	{
-		_movementRate -= _moveRateOffset;
+		_zoomRate -= _moveZoomOffset;
 	}
 	if (_rotationRate >= _rotRateOffset)
 	{
@@ -92,6 +102,26 @@ void CameraOrbit::ScaleMovementRateDown()
 
 void CameraOrbit::ResetMovementRate()
 {
-	_movementRate = _originalMoveRate;
+	_zoomRate = _originalZoomRate;
 	_rotationRate = _originalRotRate;
+}
+
+void CameraOrbit::Zoom(bool in)
+{
+	XMVECTOR distance = XMVectorReplicate(_zoomRate);
+	XMVECTOR direction = XMLoadFloat4(&_forward);
+	XMVECTOR position = XMLoadFloat4(&_position);
+
+	if (in)
+	{
+		if ((_position.x * _position.x + _position.y * _position.y + _position.z * _position.z) <= _maxZoom)
+		{
+			return;
+		}
+		distance *= -1.0f;
+	}
+
+	
+	XMStoreFloat4(&_position, XMVectorMultiplyAdd(distance, direction, position));
+
 }

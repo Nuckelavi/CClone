@@ -43,7 +43,7 @@ void CameraManager::InitCameras(int windowWidth, int windowHeight)
         new CameraOrbit(XMFLOAT4(0.0f, 0.0f, 4.0f, 0.0f),
             XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f),
             XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f),
-            windowWidth, windowHeight, 1.0f, 100.0f);
+            windowWidth, windowHeight, 1.0f, 100.0f, 4.5f);
 
     _pCameras[(int)CameraType::FIRST_PERSON] =
         new CameraFlying(XMFLOAT4(0.0f, 0.0f, 4.0f, 0.0f),
