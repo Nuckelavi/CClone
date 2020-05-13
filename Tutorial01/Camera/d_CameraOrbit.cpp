@@ -54,11 +54,11 @@ void CameraOrbit::ProcessInput()
 		Rotate(-_rotationRate, true);
 	}
 
-	if (GetAsyncKeyState(VK_NUMPAD8))
+	if (GetAsyncKeyState(VK_ADD))
 	{
 		Zoom(true);
 	}
-	if (GetAsyncKeyState(VK_NUMPAD5))
+	if (GetAsyncKeyState(VK_SUBTRACT))
 	{
 		Zoom(false);
 	}
@@ -94,9 +94,17 @@ void CameraOrbit::ScaleMovementRateDown()
 	{
 		_zoomRate -= _moveZoomOffset;
 	}
+	else
+	{
+		_zoomRate = 0.0f;
+	}
 	if (_rotationRate >= _rotRateOffset)
 	{
 		_rotationRate -= _rotRateOffset;
+	}
+	else
+	{
+		_rotationRate = 0.0f;
 	}
 }
 

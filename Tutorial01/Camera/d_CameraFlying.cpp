@@ -127,9 +127,17 @@ void CameraFlying::ScaleMovementRateDown()
 	{
 		_movementRate -= _moveRateOffset;
 	}
+	else
+	{
+		_movementRate = 0.0f;
+	}
 	if (_rotationRate >= _rotRateOffset)
 	{
 		_rotationRate -= _rotRateOffset;
+	}
+	else
+	{
+		_movementRate = 0.0f;
 	}
 }
 

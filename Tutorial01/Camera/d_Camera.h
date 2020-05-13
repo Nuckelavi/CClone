@@ -40,6 +40,9 @@ public:
 		float nearDepth, float farDepth);
 	void ResetCamera(DirectX::XMFLOAT4 newPos);
 
+	virtual void ScaleMovementRateUp();
+	virtual void ScaleMovementRateDown();
+
 	//set
 	void SetPosition(DirectX::XMFLOAT4& position);
 	void SetForward(DirectX::XMFLOAT4& forward);

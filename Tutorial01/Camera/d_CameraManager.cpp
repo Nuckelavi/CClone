@@ -85,9 +85,14 @@ void CameraManager::SetCurrentCameraInt(int newCameraIndex)
     UpdateCamera();
 }
 
-const Camera* CameraManager::GetCurrentCamera() const
+const Camera* CameraManager::GetCurrConstCamera() const
 {
     return  _pCameras[(int)_currentCamera];
+}
+
+Camera* CameraManager::GetCurrentCamera() const
+{
+    return _pCameras[(int)_currentCamera];
 }
 
 const Camera* CameraManager::GetCamera(CameraType cameraType) const

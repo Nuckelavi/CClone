@@ -33,31 +33,31 @@ void LightManager::Update()
     *NUMPAD 3 - set light to the right of object
     */
     //------------------------------------------------------------------
-    if (GetAsyncKeyState(0x41))
+    if (GetAsyncKeyState(VK_NUMPAD4))
     {
         _lightPosition.x -= MOVEMENT_RATE;
     }
-    if (GetAsyncKeyState(0x44))
+    if (GetAsyncKeyState(VK_NUMPAD6))
     {
         _lightPosition.x += MOVEMENT_RATE;
     }
-    if (GetAsyncKeyState(0x57))
+    if (GetAsyncKeyState(VK_NUMPAD8))
     {
         _lightPosition.y += MOVEMENT_RATE;
     }
-    if (GetAsyncKeyState(0x53))
+    if (GetAsyncKeyState(VK_NUMPAD2))
     {
         _lightPosition.y -= MOVEMENT_RATE;
     }
-    if (GetAsyncKeyState(0x45))
+    if (GetAsyncKeyState(VK_NUMPAD9))
     {
         _lightPosition.z += MOVEMENT_RATE;
     }
-    if (GetAsyncKeyState(0x51))
+    if (GetAsyncKeyState(VK_NUMPAD7))
     {
         _lightPosition.z -= MOVEMENT_RATE;
     }
-    if (GetAsyncKeyState(VK_NUMPAD0))
+    /*if (GetAsyncKeyState(VK_NUMPAD0))
     {
         _lightPosition = _originalPosition;
     }
@@ -78,7 +78,7 @@ void LightManager::Update()
         _lightPosition.x = -_originalPosition.z;
         _lightPosition.y = _originalPosition.y;
         _lightPosition.z = _originalPosition.x;
-    }
+    }*/
 
     if (GetAsyncKeyState(0x4C))
     {

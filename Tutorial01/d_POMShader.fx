@@ -213,7 +213,7 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
 	//this time you have to make sure the binormal is orthogonal as well 
 	float3 B = normalize(binorm - dot(binorm, tangent) * tangent);
 
-	float3x3 TBN = float3x3(T, B, N);
+	float3x3 TBN = float3x3(-T, -B, N);
 
 	return TBN;
 }
@@ -384,6 +384,7 @@ PS_INPUT VS( VS_INPUT input )
 	output.Norm = mul(float4(input.Norm, 1), mWorld).xyz;
 	output.Tangent = mul(float4(input.Tangent, 1), mWorld).xyz;
 	output.Binormal = mul(float4(input.Binormal, 1), mWorld).xyz;
+	//output.Tangent *= -1.0f;
 
 	output.Tex = input.Tex;
 

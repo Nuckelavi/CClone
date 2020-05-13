@@ -97,6 +97,7 @@ ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_tex
 
 void InitCamera();
 HRESULT SetupPomShader();
+void RenderSurfaceDetailEffect(Light& light, int detailID);
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -708,8 +709,8 @@ void Render()
     /*g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
     g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());*/
     g_CameraManager.UpdateCamera();
-    g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera()->GetView());
-    g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera()->GetProjection());
+    g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrConstCamera()->GetView());
+    g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrConstCamera()->GetProjection());
 
 
 
@@ -785,7 +786,7 @@ void Render()
 
     LightPropertiesConstantBuffer2 lightProperties2;
     lightProperties2.EyePosition = LightPosition;
-    lightProperties2.CameraPosition = g_CameraManager.GetCurrentCamera()->Position();
+    lightProperties2.CameraPosition = g_CameraManager.GetCurrConstCamera()->Position();
     lightProperties2.Lights[0] = light;
     g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
 
@@ -1002,3 +1003,43 @@ HRESULT SetupPomShader()
 
     return hr;
 }
+
+/*
+void RenderSurfaceDetailEffect(Light& light, int detailID)
+{
+    int chosenEffect = 2;
+    ConstantBufferPOM cbPOM;
+    XMMATRIX* mGO = g_GraphCubeTest.GetWorld();
+    cbPOM.mWorld = XMMatrixTranspose(*mGO);
+    cbPOM.mView = XMMatrixTranspose(g_View);
+    cbPOM.mProjection = XMMatrixTranspose(g_Projection);
+    cbPOM.fHeightScale = 0.15f;//0.05f;
+    cbPOM.nMinSamples = 8;
+    cbPOM.nMaxSamples = 32;
+    cbPOM.nEffectID = 0;
+    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+
+    LightPropertiesConstantBuffer2 lightProperties2;
+    lightProperties2.EyePosition = g_LightManager.LightVec();
+    lightProperties2.CameraPosition = g_CameraManager.GetCurrentCamera()->Position();
+    lightProperties2.Lights[0] = light;
+    g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
+
+    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+
+    g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
+
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
+    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
+
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
+    g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
+    g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
+    g_GraphCubeTest.Draw(g_pImmediateContext);
+}*/

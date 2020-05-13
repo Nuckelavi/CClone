@@ -30,7 +30,8 @@ public:
 	void UpdateCamera();
 	void SetCurrentCamera(CameraType newCamera);
 	void SetCurrentCameraInt(int newCameraIndex);
-	const Camera* GetCurrentCamera() const;
+	const Camera* GetCurrConstCamera() const;
+	Camera* GetCurrentCamera() const;
 	const Camera* GetCamera(CameraType cameraType) const;
 	CameraType GetCameraType() const { return _currentCamera; }
 

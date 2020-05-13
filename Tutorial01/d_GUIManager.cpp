@@ -129,6 +129,7 @@ void GUIManager::RenderLightMenu()
         _light[2] = light.z / _max;
     }
 
+    //render ---------------------------------------
     ImGui::Begin("Lights Menu", &_showLightMenu);
 
     ImGui::Text("Position");
@@ -138,12 +139,32 @@ void GUIManager::RenderLightMenu()
     ImGui::Text("Max offset");
     ImGui::SameLine();
     ImGui::InputFloat("", &_max, 0.25f, 0.5f, 3);
+
     if (_max < 0.0f)
     {
         _max = 0.0f;
     }
 
     _lightManager->SetLight(_light[0] * _max, _light[1] * _max, _light[2] * _max);
+
+
+    ImGui::Text("    ");
+
+    bool lightsEnabled = _lightManager->IsEnabled();
+    const char* toggleButton;
+    if (lightsEnabled)
+    {
+        toggleButton = "Turn Lights Off";
+    }
+    else
+    {
+        toggleButton = "Turn Lights On";
+    }
+
+    if (ImGui::Button(toggleButton))
+    {
+        _lightManager->SetEnabled(!lightsEnabled);
+    }
 
     ImGui::End();
 }
@@ -193,7 +214,21 @@ void GUIManager::RenderCameraMenu()
         ImGui::EndCombo();
     }
 
-    
+    if (_cameraManager->GetCameraType() == CameraType::ORBIT ||
+        _cameraManager->GetCameraType() == CameraType::FLYING)
+    {
+        if (ImGui::Button("Speed Up"))
+        {
+            //change these to virtual
+            _cameraManager->GetCurrentCamera()->ScaleMovementRateUp();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Slow Down"))
+        {
+            _cameraManager->GetCurrentCamera()->ScaleMovementRateDown();
+        }
+    }
+
 
     ImGui::End();
 }

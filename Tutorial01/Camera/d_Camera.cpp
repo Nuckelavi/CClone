@@ -124,6 +124,14 @@ void Camera::ResetCamera(DirectX::XMFLOAT4 newPos)
 	_position = newPos;
 }
 
+void Camera::ScaleMovementRateUp()
+{
+}
+
+void Camera::ScaleMovementRateDown()
+{
+}
+
 void Camera::SetPosition(DirectX::XMFLOAT4& position)
 {
 	_position = position;

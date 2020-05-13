@@ -8,10 +8,10 @@
 class CameraOrbit : public Camera
 {
 private:
-	static constexpr float _originalZoomRate = 0.01f;
-	static constexpr float _originalRotRate = 0.0005f;
-	static constexpr float _moveZoomOffset = 0.001f;
-	static constexpr float _rotRateOffset = 0.000005f;
+	static constexpr float _originalZoomRate = 0.0025f;
+	static constexpr float _originalRotRate = 0.000625f;
+	static constexpr float _moveZoomOffset = 0.00125f;//0.001f;
+	static constexpr float _rotRateOffset = 0.0003125f;//0.000005f;
 	float _maxZoom;
 	float _zoomRate;
 	float _rotationRate;

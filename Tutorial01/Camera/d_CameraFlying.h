@@ -7,8 +7,8 @@ class CameraFlying : public Camera
 private:
 	static constexpr float _originalMoveRate = 0.01f;
 	static constexpr float _originalRotRate = 0.005f;
-	static constexpr float _moveRateOffset = 0.001f;
-	static constexpr float _rotRateOffset = 0.000005f;
+	static constexpr float _moveRateOffset = 0.0025f;
+	static constexpr float _rotRateOffset = 0.00125f;
 	float _movementRate;
 	float _rotationRate;
 
