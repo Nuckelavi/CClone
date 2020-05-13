@@ -94,13 +94,6 @@ ID3D11Buffer* g_pLightConstantBuffer2 = nullptr;
 int g_texNum = 10;
 ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_texNum];
 
-ImGuiIO io;
-bool show_demo_window = false;
-
-
-void SetupImgui();
-void RenderImgui();
-
 
 void InitCamera();
 HRESULT SetupPomShader();
@@ -631,9 +624,8 @@ void CleanupDevice()
     if (g_pConstantBufferPOM) g_pConstantBufferPOM->Release();
     if (g_pLightConstantBuffer2) g_pLightConstantBuffer2->Release();
 
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
+
+    g_GUIManager.Shutdown();
 
 
     
@@ -733,9 +725,6 @@ void Render()
 	g_GameObject.update(t);
     //g_CubeTest.SetRotation(0, 0.5f, 0);
     g_CubeTest.Update(0.0f);
-
-
-    //RenderImgui();
 
 
 
@@ -845,56 +834,15 @@ void Render()
     g_GraphCubeTest.Draw(g_pImmediateContext);
 
 
-    //RenderImgui();
+
     g_GUIManager.Render();
-    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+
 
     // Present our back buffer to our front buffer
     g_pSwapChain->Present( 0, 0 );
 }
 
-
-
-void SetupImgui()
-{
-    IMGUI_CHECKVERSION();
-
-    ImGui::CreateContext();
-
-    io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplWin32_Init(g_hWnd);
-    ImGui_ImplDX11_Init(g_pd3dDevice, g_pImmediateContext);
-}
-
-void RenderImgui()
-{
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-
-    ImGui::Begin("Hello, world!"); 
-    ImGui::Text("This is some useful text.");
-    ImGui::Checkbox("Demo Window", &show_demo_window);
-    ImGui::End();
-
-   
-
-
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    // Rendering
-    ImGui::Render();
-    //g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
-    //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
 
 void InitCamera()
 {

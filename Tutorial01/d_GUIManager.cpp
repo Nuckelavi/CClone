@@ -40,3 +40,10 @@ void GUIManager::Render()
     //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
+
+void GUIManager::Shutdown()
+{
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+}
