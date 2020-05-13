@@ -216,24 +216,6 @@ void GUIManager::ChooseScene()
         "Circle/Hill",
         "Voxel"
     };
-
-    //bool effectsActive[IM_ARRAYSIZE(SceneNames)] = { false };
-
-    /*ImGui::MenuItem(SceneNames[0], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[1], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[2], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[3], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[4], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[5], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[6], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[7], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[8], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[9], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[10], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[11], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[12], NULL, &_displayEffects);
-    ImGui::MenuItem(SceneNames[13], NULL, &_displayEffects);*/
-    
     
     for (int i = 0; i < IM_ARRAYSIZE(SceneNames); ++i)
     {
