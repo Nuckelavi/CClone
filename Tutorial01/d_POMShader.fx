@@ -485,8 +485,8 @@ float4 ParallaxOcclusionMapped(PS_INPUT IN)
 
 	float2 parallaxTex = ParallaxOcclusion(IN.Tex, IN.Norm, vertexToEyeTS);
 
-	/*if (parallaxTex.x > 1.0 || parallaxTex.y > 1.0 || parallaxTex.x < 0.0 || parallaxTex.y < 0.0)
-		discard;*/
+	if (parallaxTex.x > 1.0 || parallaxTex.y > 1.0 || parallaxTex.x < 0.0 || parallaxTex.y < 0.0)
+		discard;
 
 	float3 bumpNormal = NormalMapping(parallaxTex, TBN);
 
@@ -567,51 +567,6 @@ float4 SelfShadowed(PS_INPUT IN)
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
-	/*
-	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
-	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
-
-	IN.Norm = normalize(IN.Norm);
-
-	//!!! be careful about which TBN matrix function you're using. in most cases the regular one is fine,
-	//but for the cube in DrawableGameObject.cpp, use computeTBNMatrixB
-	//float3x3 TBN = computeTBNMatrix(IN.Norm, IN.Tangent);
-	float3x3 TBN = computeTBNMatrixB(IN.Norm, IN.Tangent, IN.Binormal);
-
-	float3 vertexToEyeTS = mul(vertexToEye, TBN);
-
-
-	float2 parallaxTex = ParallaxOcclusion(IN.Tex, IN.Norm, vertexToEyeTS);
-
-	if (parallaxTex.x > 1.0 || parallaxTex.y > 1.0 || parallaxTex.x < 0.0 || parallaxTex.y < 0.0)
-		discard;
-
-	float3 bumpNormal = NormalMapping(parallaxTex, TBN);
-
-	LightingResult lit = ComputeLighting(IN.worldPos, normalize(bumpNormal), vertexToLight);
-
-	float4 texColor = { 1, 1, 1, 1 };
-
-	float4 emissive = Material.Emissive;
-	float4 ambient = Material.Ambient * GlobalAmbient;
-	float4 diffuse = Material.Diffuse * lit.Diffuse;
-	float4 specular = Material.Specular * lit.Specular;
-
-	if (Material.UseTexture)
-	{
-		texColor = txDiffuse[0].Sample(samLinear, parallaxTex);
-	}
-
-
-	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
-	//return float4(1, 1, 1, 1);
-
-	return finalColor;
-	*/
-
-
-
-
 	if (nEffectID == 0 || nEffectID == 10)
 	{
 		return NormalMapped(IN);

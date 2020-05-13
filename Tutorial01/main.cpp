@@ -846,7 +846,7 @@ void Render()
         cbPOM.nEffectID = 2;
         break;
     case Scene::SELFSHADOWING:
-        cbPOM.nEffectID = 3;
+        cbPOM.nEffectID = 4;
         break;
     case Scene::GRAYSCALE:
     case Scene::BOXBLUR:
