@@ -14,8 +14,13 @@ GUIManager::GUIManager() :
     _light{0.0f, 0.0f, 0.0f},
     _camera(0),
     _currentScene(Scene::NORMAL),
-    _currentCam(nullptr)
+    _currentCam(nullptr),
+    _lastScene(0)
 {
+    for (int i = 0; i < (int)Scene::LAST_ITEM; ++i)
+    {
+        _effectsActive[i] = false;
+    }
 }
 
 GUIManager::~GUIManager()
@@ -207,68 +212,39 @@ void GUIManager::ChooseScene()
         "Depth of Field Blur",
         "Heightmap Terrain",
         "Fault Formation",
-        "Diamond Square ",
+        "Diamond Square",
+        "Circle/Hill",
+        "Voxel"
     };
 
-    ImGui::MenuItem("Physics Demo", NULL, &_displayEffects);
-    ImGui::MenuItem("Normap Mapping", NULL, &_displayEffects);
-    ImGui::MenuItem("Simple Parallax", NULL, &_displayEffects);
-    ImGui::MenuItem("Parallax Occlusion", NULL, &_displayEffects);
-    ImGui::MenuItem("POM + Self Shadowing", NULL, &_displayEffects);
-    ImGui::MenuItem("Grayscale", NULL, &_displayEffects);
-    ImGui::MenuItem("Box Blur", NULL, &_displayEffects);
-    ImGui::MenuItem("Gaussian Blur", NULL, &_displayEffects);
-    ImGui::MenuItem("Depth of Field Blur", NULL, &_displayEffects);
-    ImGui::MenuItem("Heightmap Terrain", NULL, &_displayEffects);
-    ImGui::MenuItem("Fault Formation Terrain", NULL, &_displayEffects);
-    ImGui::MenuItem("Diamond Square Terrain", NULL, &_displayEffects);
-    ImGui::MenuItem("Circle/Hill Terrain", NULL, &_displayEffects);
-    ImGui::MenuItem("Voxel Terrain", NULL, &_displayEffects);
+    //bool effectsActive[IM_ARRAYSIZE(SceneNames)] = { false };
 
-    if (ImGui::IsItemClicked());
-
-
-
-
-
-        const char* Cameras[] = {
-        "Front",
-        "Top-Down",
-        "Orbit",
-        "Flying",
-        "First Person"
-    };
-
-    int camIndex = (int)_cameraManager->GetCameraType();
-    if (camIndex < IM_ARRAYSIZE(Cameras))
+    /*ImGui::MenuItem(SceneNames[0], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[1], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[2], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[3], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[4], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[5], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[6], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[7], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[8], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[9], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[10], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[11], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[12], NULL, &_displayEffects);
+    ImGui::MenuItem(SceneNames[13], NULL, &_displayEffects);*/
+    
+    
+    for (int i = 0; i < IM_ARRAYSIZE(SceneNames); ++i)
     {
-        _currentCam = Cameras[camIndex];
-    }
-
-    if (ImGui::BeginCombo("Camera     ", _currentCam))
-    {
-        for (int i = 0; i < IM_ARRAYSIZE(Cameras); ++i)
+        ImGui::MenuItem(SceneNames[i], NULL, &_effectsActive[i]);
+        if (ImGui::IsItemClicked())
         {
-            bool selected = (_currentCam == Cameras[i]);
-            if (ImGui::Selectable(Cameras[i], selected))
-            {
-                _currentCam = Cameras[i];
-            }
-            if (selected)
-            {
-                ImGui::SetItemDefaultFocus();
-                _currentCam = Cameras[i];
-            }
-
-            if (ImGui::IsItemClicked())
-            {
-                _currentCam = Cameras[i];
-                _cameraManager->SetCurrentCameraInt(i);
-                break;
-            }
+            _effectsActive[_lastScene] = false;
+            _currentScene = (Scene)i;
+            _lastScene = i;
+            ImGui::SetItemDefaultFocus();
         }
-
-        ImGui::EndCombo();
     }
 
 }

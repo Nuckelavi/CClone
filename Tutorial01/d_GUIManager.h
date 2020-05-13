@@ -20,7 +20,8 @@ enum class Scene
     HEIGHTMAP,
     FAULTFORM,
     CIRCLEHILL,
-    VOXEL
+    VOXEL,
+    LAST_ITEM
 };
 
 class CameraManager;
@@ -41,9 +42,11 @@ private:
 
     int _camera;
     Scene _currentScene;
+    int _lastScene;
     LightManager* _lightManager;
     CameraManager* _cameraManager;
     const char* _currentCam;
+    bool _effectsActive[(int)Scene::LAST_ITEM];
 
 public:
     GUIManager();
