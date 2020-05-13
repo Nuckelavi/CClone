@@ -121,7 +121,7 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     }
 
     //SetupImgui();
-    g_GUIManager.Setup(g_hWnd, g_pd3dDevice, g_pImmediateContext);
+    g_GUIManager.Setup(g_hWnd, g_pd3dDevice, g_pImmediateContext, g_LightManager, g_CameraManager);
     
     // Main message loop
     MSG msg = {0};

@@ -44,3 +44,8 @@ namespace XMF3
 		return XMFLOAT3(a.x / mag, a.y / mag, a.z / mag);
 	}
 }
+
+float F::Max(float a, float b)
+{
+	return a >= b ? a : b;
+}

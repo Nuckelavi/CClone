@@ -1,9 +1,18 @@
 #include "d_LightManager.h"
 
+LightManager::LightManager() :
+    _lightPosition(DirectX::XMFLOAT4(0.0f, 0.75f, -1.0f, 1.0f)),
+    _originalPosition(_lightPosition),
+    _enabled(true),
+    MOVEMENT_RATE(0.01f)
+{
+}
+
 LightManager::LightManager(DirectX::XMFLOAT4& light) :
 	_lightPosition(light),
 	_originalPosition(light),
-    _enabled(true)
+    _enabled(true),
+    MOVEMENT_RATE(0.01f)
 {
 }
 
@@ -80,4 +89,9 @@ void LightManager::Update()
 void LightManager::SetLight(DirectX::XMFLOAT4& lightPos)
 {
     _lightPosition = lightPos;
+}
+
+void LightManager::SetLight(float x, float y, float z)
+{
+    _lightPosition = { x, y, z, _lightPosition.w };
 }

@@ -31,5 +31,6 @@ public:
 	void SetCurrentCamera(CameraType newCamera);
 	const Camera* GetCurrentCamera() const;
 	const Camera* GetCamera(CameraType cameraType) const;
+	CameraType GetCameraType() const { return _currentCamera; }
 
 };

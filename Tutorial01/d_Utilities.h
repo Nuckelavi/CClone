@@ -13,3 +13,8 @@ namespace XMF3
 	void normalize(DirectX::XMFLOAT3& a);
 	DirectX::XMFLOAT3 getNormalized(DirectX::XMFLOAT3& a);
 }
+
+namespace F
+{
+	float Max(float a, float b);
+}

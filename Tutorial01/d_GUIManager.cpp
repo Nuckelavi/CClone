@@ -1,6 +1,39 @@
 #include "d_GUIManager.h"
 
-void GUIManager::Setup(HWND hWnd, ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext)
+#include "Camera/d_CameraManager.h"
+#include "d_LightManager.h"
+
+#include "d_Utilities.h"
+
+GUIManager::GUIManager() :
+    show_demo_window(false),
+    _displayEffects(false),
+    _showCameraMenu(false),
+    _showLightMenu(false),
+    _max(1.0f),
+    _light{0.0f, 0.0f, 0.0f},
+    _camera(0),
+    _currentScene(Scene::NORMAL),
+    _currentCam(nullptr)
+{
+}
+
+GUIManager::~GUIManager()
+{
+    /*if (_lightManager && _lightManager != nullptr)
+    {
+        delete _lightManager;
+        _lightManager = nullptr;
+    }
+    if (_cameraManager && _cameraManager != nullptr)
+    {
+        delete _cameraManager;
+        _cameraManager = nullptr;
+    }*/
+}
+
+void GUIManager::Setup(HWND hWnd, ID3D11Device* pd3dDevice,
+    ID3D11DeviceContext* pContext, LightManager& lm, CameraManager& cm)
 {
     IMGUI_CHECKVERSION();
 
@@ -13,6 +46,9 @@ void GUIManager::Setup(HWND hWnd, ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
     ImGui_ImplWin32_Init(hWnd);
     ImGui_ImplDX11_Init(pd3dDevice, pContext);
+
+    _cameraManager = &cm;
+    _lightManager = &lm;
 }
 
 void GUIManager::Render()
@@ -27,6 +63,10 @@ void GUIManager::Render()
 
     ImGuiWindowFlags window_flags = 0;
     window_flags |= ImGuiWindowFlags_MenuBar;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoResize;
+    window_flags |= ImGuiWindowFlags_NoTitleBar;
+    window_flags |= ImGuiWindowFlags_NoBackground;
     //if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
     //if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
     //if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
@@ -40,10 +80,12 @@ void GUIManager::Render()
 
     bool _pOpen = true;
 
-    ImGui::Begin("Hello, world!", NULL, window_flags);
+    ImGui::Begin(" ", NULL, window_flags);
 
     if (ImGui::BeginMenuBar())
     {
+        ImGui::SetWindowSize(ImVec2(640, 10));
+        ImGui::SetWindowPos(ImVec2(0, 0));
         if (ImGui::BeginMenu("Scenes"))//, NULL, &_displayEffects))
         {
             ImGui::MenuItem("Physics Demo", NULL, &_displayEffects);
@@ -75,48 +117,105 @@ void GUIManager::Render()
         ImGui::EndMenuBar();
     }
 
-    ImGui::Text("This is some useful text.");
-    ImGui::Checkbox("Demo Window", &show_demo_window);
     ImGui::End();
 
 
     if (_showCameraMenu)
     {
-        ImGui::Begin("Camera Menu");
-
-        if (ImGui::BeginMenu("Camera Type"))
-        {
-            
-            ImGui::EndMenu();
-        }
-
-        const char* Cameras[] = {
-            "Front",
-            "Top-Down",
-            "Orbit",
-            "Flying",
-            "First Person"
-        };
-
-        if (ImGui::BeginCombo("Camera Type", "yeet"))
-        {
-            for (int i = 0; i < IM_ARRAYSIZE(Cameras); ++i)
-            {
-                bool selected = (_currentCam == Cameras[i]);
-                if (ImGui::Selectable(Cameras[i], selected))
-                {
-                    _currentCam = Cameras[i];
-                }
-                if (selected)
-                {
-                    ImGui::SetItemDefaultFocus();
-                }
-            }
-            ImGui::EndCombo();
-        }
-
-        ImGui::End();
+        RenderCameraMenu();
     }
+
+    if (_showLightMenu)
+    {
+        RenderLightMenu();
+    }
+
+    
+    //ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    // Rendering
+    ImGui::Render();
+    //g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
+    //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void GUIManager::RenderLightMenu()
+{
+    DirectX::XMFLOAT4 light = _lightManager->GetLight();
+
+    _max = F::Max(F::Max(std::abs(light.x), std::abs(light.y)), std::abs(light.z));
+
+    if (_max != 0.0f)
+    {
+        _light[0] = light.x / _max;
+        _light[1] = light.y / _max;
+        _light[2] = light.z / _max;
+    }
+
+    ImGui::Begin("Lights Menu", &_showLightMenu);
+
+    ImGui::Text("Position");
+    ImGui::SameLine();
+    ImGui::SliderFloat3("", _light, -1.0f, 1.0f);
+
+    ImGui::Text("Max offset");
+    ImGui::SameLine();
+    ImGui::InputFloat("", &_max, 0.25f, 0.5f, 3);
+    if (_max < 0.0f)
+    {
+        _max = 0.0f;
+    }
+
+    _lightManager->SetLight(_light[0] * _max, _light[1] * _max, _light[2] * _max);
+
+    ImGui::End();
+}
+
+void GUIManager::RenderCameraMenu()
+{
+    ImGui::Begin("Camera Menu", &_showCameraMenu);
+
+    
+    const char* Cameras[] = {
+        "Front",
+        "Top-Down",
+        "Orbit",
+        "Flying",
+        "First Person"
+    };
+
+    int camIndex = (int)_cameraManager->GetCameraType();
+    if (camIndex < IM_ARRAYSIZE(Cameras))
+    {
+        _currentCam = Cameras[camIndex];
+    }
+    
+    int index = 0;
+    if (ImGui::BeginCombo("Camera Type", _currentCam))
+    {
+        for (int i = 0; i < IM_ARRAYSIZE(Cameras); ++i)
+        {
+            bool selected = (_currentCam == Cameras[i]);
+            if (ImGui::Selectable(Cameras[i], selected))
+            {
+                _currentCam = Cameras[i];
+            }
+            if (selected)
+            {
+                ImGui::SetItemDefaultFocus();
+                _currentCam = Cameras[i];
+                index = i;
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
+    _cameraManager->SetCurrentCamera((CameraType)index);
+
+    ImGui::End();
+
 
     /*
     const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO", "PPPP", "QQQQQQQQQQ", "RRR", "SSSS" };
@@ -135,37 +234,6 @@ if (ImGui::BeginCombo("##combo", current_item)) // The second parameter is the l
     ImGui::EndCombo();
 }
     */
-
-
-    if (_showLightMenu)
-    {
-        ImGui::Begin("Lights Menu");
-
-        ImGui::Text("Position");
-        ImGui::SameLine();
-        ImGui::SliderFloat3("", &_x, -1.0f, 1.0f);
-
-        ImGui::Text("Max offset");
-        ImGui::SameLine();
-        ImGui::InputFloat("", &_max, 0.25f, 0.5f, 3);
-        if (_max < 0.0f)
-        {
-            _max = 0.0f;
-        }
-
-        ImGui::End();
-    }
-
-
-
-
-    //ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-    // Rendering
-    ImGui::Render();
-    //g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
-    //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void GUIManager::Shutdown()
