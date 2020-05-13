@@ -29,6 +29,7 @@ public:
 	void InitCameras(int windowWidth, int windowHeight);
 	void UpdateCamera();
 	void SetCurrentCamera(CameraType newCamera);
+	void SetCurrentCameraInt(int newCameraIndex);
 	const Camera* GetCurrentCamera() const;
 	const Camera* GetCamera(CameraType cameraType) const;
 	CameraType GetCameraType() const { return _currentCamera; }

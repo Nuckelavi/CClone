@@ -20,16 +20,6 @@ GUIManager::GUIManager() :
 
 GUIManager::~GUIManager()
 {
-    /*if (_lightManager && _lightManager != nullptr)
-    {
-        delete _lightManager;
-        _lightManager = nullptr;
-    }
-    if (_cameraManager && _cameraManager != nullptr)
-    {
-        delete _cameraManager;
-        _cameraManager = nullptr;
-    }*/
 }
 
 void GUIManager::Setup(HWND hWnd, ID3D11Device* pd3dDevice,
@@ -67,16 +57,10 @@ void GUIManager::Render()
     window_flags |= ImGuiWindowFlags_NoResize;
     window_flags |= ImGuiWindowFlags_NoTitleBar;
     window_flags |= ImGuiWindowFlags_NoBackground;
-    //if (no_titlebar)        window_flags |= ImGuiWindowFlags_NoTitleBar;
-    //if (no_scrollbar)       window_flags |= ImGuiWindowFlags_NoScrollbar;
-    //if (!no_menu)           window_flags |= ImGuiWindowFlags_MenuBar;
-    //if (no_move)            window_flags |= ImGuiWindowFlags_NoMove;
-    //if (no_resize)          window_flags |= ImGuiWindowFlags_NoResize;
-    //if (no_collapse)        window_flags |= ImGuiWindowFlags_NoCollapse;
-    //if (no_nav)             window_flags |= ImGuiWindowFlags_NoNav;
-    //if (no_background)      window_flags |= ImGuiWindowFlags_NoBackground;
-    //if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-    //if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
+    //window_flags |= ImGuiWindowFlags_NoScrollbar;
+    //window_flags |= ImGuiWindowFlags_NoCollapse;
+    //window_flags |= ImGuiWindowFlags_NoNav;
+    //window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
 
     bool _pOpen = true;
 
@@ -191,8 +175,7 @@ void GUIManager::RenderCameraMenu()
         _currentCam = Cameras[camIndex];
     }
     
-    int index = 0;
-    if (ImGui::BeginCombo("Camera Type", _currentCam))
+    if (ImGui::BeginCombo("Camera     ", _currentCam))
     {
         for (int i = 0; i < IM_ARRAYSIZE(Cameras); ++i)
         {
@@ -205,35 +188,22 @@ void GUIManager::RenderCameraMenu()
             {
                 ImGui::SetItemDefaultFocus();
                 _currentCam = Cameras[i];
-                index = i;
+            }
+
+            if (ImGui::IsItemClicked())
+            {
+                _currentCam = Cameras[i];
+                _cameraManager->SetCurrentCameraInt(i);
+                break;
             }
         }
 
         ImGui::EndCombo();
     }
 
-    _cameraManager->SetCurrentCamera((CameraType)index);
+    
 
     ImGui::End();
-
-
-    /*
-    const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO", "PPPP", "QQQQQQQQQQ", "RRR", "SSSS" };
-static const char* current_item = NULL;
-
-if (ImGui::BeginCombo("##combo", current_item)) // The second parameter is the label previewed before opening the combo.
-{
-    for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-    {
-        bool is_selected = (current_item == items[n]); // You can store your selection however you want, outside or inside your objects
-        if (ImGui::Selectable(items[n], is_selected)
-            current_item = items[n];
-        if (is_selected)
-            ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
-    }
-    ImGui::EndCombo();
-}
-    */
 }
 
 void GUIManager::Shutdown()
