@@ -838,30 +838,15 @@ void Render()
         break;
     case Scene::NORMAL:
         cbPOM.nEffectID = 0;
+        break;
     case Scene::PARALLAX:
         cbPOM.nEffectID = 1;
+        break;
     case Scene::POM:
         cbPOM.nEffectID = 2;
+        break;
     case Scene::SELFSHADOWING:
         cbPOM.nEffectID = 3;
-
-        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-
-        g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
-        g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
-
-        g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-        g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-        g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
-        g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
-
-        g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
-        g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
-        g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
-        g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
-        g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-
-        g_GraphCubeTest.Draw(g_pImmediateContext);
         break;
     case Scene::GRAYSCALE:
     case Scene::BOXBLUR:
@@ -873,8 +858,25 @@ void Render()
     }
 
 
+    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+
+    g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
+
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
+    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
+
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
+    g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
+    g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
+    g_GraphCubeTest.Draw(g_pImmediateContext);
+
     //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-    //g_GraphCubeTest.Draw(g_pImmediateContext);
 
 
 

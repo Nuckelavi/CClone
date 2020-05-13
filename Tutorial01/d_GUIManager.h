@@ -55,6 +55,7 @@ public:
     void Render();
     void RenderLightMenu();
     void RenderCameraMenu();
+    void ChooseScene();
 
     void Shutdown();
 

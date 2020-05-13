@@ -567,6 +567,7 @@ float4 SelfShadowed(PS_INPUT IN)
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
+	/*
 	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
 	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
 
@@ -606,12 +607,12 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	//return float4(1, 1, 1, 1);
 
 	return finalColor;
+	*/
 
 
 
 
-
-	/*if (nEffectID == 0 || nEffectID == 10)
+	if (nEffectID == 0 || nEffectID == 10)
 	{
 		return NormalMapped(IN);
 	}
@@ -629,7 +630,7 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	}
 
 	float4 col = float4(0, 0, 0, 1);
-	return col;*/
+	return col;
 }
 
 //--------------------------------------------------------------------------------------

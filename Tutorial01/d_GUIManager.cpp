@@ -72,20 +72,7 @@ void GUIManager::Render()
         ImGui::SetWindowPos(ImVec2(0, 0));
         if (ImGui::BeginMenu("Scenes"))//, NULL, &_displayEffects))
         {
-            ImGui::MenuItem("Physics Demo", NULL, &_displayEffects);
-            ImGui::MenuItem("Normap Mapping", NULL, &_displayEffects);
-            ImGui::MenuItem("Simple Parallax", NULL, &_displayEffects);
-            ImGui::MenuItem("Parallax Occlusion", NULL, &_displayEffects);
-            ImGui::MenuItem("POM + Self Shadowing", NULL, &_displayEffects);
-            ImGui::MenuItem("Grayscale", NULL, &_displayEffects);
-            ImGui::MenuItem("Box Blur", NULL, &_displayEffects);
-            ImGui::MenuItem("Gaussian Blur", NULL, &_displayEffects);
-            ImGui::MenuItem("Depth of Field Blur", NULL, &_displayEffects);
-            ImGui::MenuItem("Heightmap Terrain", NULL, &_displayEffects);
-            ImGui::MenuItem("Fault Formation Terrain", NULL, &_displayEffects);
-            ImGui::MenuItem("Diamond Square Terrain", NULL, &_displayEffects);
-            ImGui::MenuItem("Circle/Hill Terrain", NULL, &_displayEffects);
-            ImGui::MenuItem("Voxel Terrain", NULL, &_displayEffects);
+            ChooseScene();
 
             ImGui::EndMenu();
         }
@@ -204,6 +191,86 @@ void GUIManager::RenderCameraMenu()
     
 
     ImGui::End();
+}
+
+void GUIManager::ChooseScene()
+{
+    const char* SceneNames[] = {
+        "Physics Demo",
+        "Normal Mapping",
+        "Simple Parallax",
+        "Parallax Occlusion",
+        "POM + Self Shadowing",
+        "Grayscale",
+        "Box Blur",
+        "Gaussian Blur",
+        "Depth of Field Blur",
+        "Heightmap Terrain",
+        "Fault Formation",
+        "Diamond Square ",
+    };
+
+    ImGui::MenuItem("Physics Demo", NULL, &_displayEffects);
+    ImGui::MenuItem("Normap Mapping", NULL, &_displayEffects);
+    ImGui::MenuItem("Simple Parallax", NULL, &_displayEffects);
+    ImGui::MenuItem("Parallax Occlusion", NULL, &_displayEffects);
+    ImGui::MenuItem("POM + Self Shadowing", NULL, &_displayEffects);
+    ImGui::MenuItem("Grayscale", NULL, &_displayEffects);
+    ImGui::MenuItem("Box Blur", NULL, &_displayEffects);
+    ImGui::MenuItem("Gaussian Blur", NULL, &_displayEffects);
+    ImGui::MenuItem("Depth of Field Blur", NULL, &_displayEffects);
+    ImGui::MenuItem("Heightmap Terrain", NULL, &_displayEffects);
+    ImGui::MenuItem("Fault Formation Terrain", NULL, &_displayEffects);
+    ImGui::MenuItem("Diamond Square Terrain", NULL, &_displayEffects);
+    ImGui::MenuItem("Circle/Hill Terrain", NULL, &_displayEffects);
+    ImGui::MenuItem("Voxel Terrain", NULL, &_displayEffects);
+
+    if (ImGui::IsItemClicked());
+
+
+
+
+
+        const char* Cameras[] = {
+        "Front",
+        "Top-Down",
+        "Orbit",
+        "Flying",
+        "First Person"
+    };
+
+    int camIndex = (int)_cameraManager->GetCameraType();
+    if (camIndex < IM_ARRAYSIZE(Cameras))
+    {
+        _currentCam = Cameras[camIndex];
+    }
+
+    if (ImGui::BeginCombo("Camera     ", _currentCam))
+    {
+        for (int i = 0; i < IM_ARRAYSIZE(Cameras); ++i)
+        {
+            bool selected = (_currentCam == Cameras[i]);
+            if (ImGui::Selectable(Cameras[i], selected))
+            {
+                _currentCam = Cameras[i];
+            }
+            if (selected)
+            {
+                ImGui::SetItemDefaultFocus();
+                _currentCam = Cameras[i];
+            }
+
+            if (ImGui::IsItemClicked())
+            {
+                _currentCam = Cameras[i];
+                _cameraManager->SetCurrentCameraInt(i);
+                break;
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
 }
 
 void GUIManager::Shutdown()
