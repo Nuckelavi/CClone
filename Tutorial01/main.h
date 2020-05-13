@@ -17,9 +17,10 @@
 #include <vector>
 
 //imgui headers
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx11.h"
+//#include "imgui/imgui.h"
+//#include "imgui/imgui_impl_win32.h"
+//#include "imgui/imgui_impl_dx11.h"
+#include "d_GUIManager.h"
 
 //managers
 #include "Camera/d_CameraManager.h"

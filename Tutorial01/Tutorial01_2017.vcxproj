@@ -362,6 +362,7 @@
     <ClInclude Include="d_Cube.h" />
     <ClInclude Include="d_GraphicsCube.h" />
     <ClInclude Include="d_Grid.h" />
+    <ClInclude Include="d_GUIManager.h" />
     <ClInclude Include="d_LightManager.h" />
     <ClInclude Include="d_Mesh.h" />
     <ClInclude Include="d_TextureManager.h" />
@@ -393,6 +394,7 @@
     <ClCompile Include="d_Cube.cpp" />
     <ClCompile Include="d_GraphicsCube.cpp" />
     <ClCompile Include="d_Grid.cpp" />
+    <ClCompile Include="d_GUIManager.cpp" />
     <ClCompile Include="d_LightManager.cpp" />
     <ClCompile Include="d_Mesh.cpp" />
     <ClCompile Include="d_TextureManager.cpp" />

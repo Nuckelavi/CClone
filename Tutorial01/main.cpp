@@ -79,6 +79,7 @@ DrawableGameObject		g_GameObject;
 CameraManager g_CameraManager;
 LightManager g_LightManager = LightManager(g_EyePosition);
 TextureManager g_TextureManager;
+GUIManager g_GUIManager;
 Cube g_CubeTest;
 //Camera g_CameraTest;
 
@@ -94,10 +95,13 @@ int g_texNum = 10;
 ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_texNum];
 
 ImGuiIO io;
+bool show_demo_window = false;
 
 
 void SetupImgui();
 void RenderImgui();
+
+
 void InitCamera();
 HRESULT SetupPomShader();
 
@@ -123,8 +127,9 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         return 0;
     }
 
-    SetupImgui();
-
+    //SetupImgui();
+    g_GUIManager.Setup(g_hWnd, g_pd3dDevice, g_pImmediateContext);
+    
     // Main message loop
     MSG msg = {0};
     while( WM_QUIT != msg.message )
@@ -695,7 +700,7 @@ void Render()
     }
 
 
-    RenderImgui();
+    
 
     // Clear the back buffer
     g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, Colors::MidnightBlue );
@@ -703,8 +708,7 @@ void Render()
     // Clear the depth buffer to 1.0 (max depth)
     g_pImmediateContext->ClearDepthStencilView( g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
-
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+   
 
 
     //CAMERA STUFFFFFFFFFFFFF
@@ -841,8 +845,9 @@ void Render()
     g_GraphCubeTest.Draw(g_pImmediateContext);
 
 
-
     //RenderImgui();
+    g_GUIManager.Render();
+    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     // Present our back buffer to our front buffer
     g_pSwapChain->Present( 0, 0 );
@@ -857,7 +862,7 @@ void SetupImgui()
     ImGui::CreateContext();
 
     io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     ImGui::StyleColorsDark();
 
@@ -871,15 +876,16 @@ void RenderImgui()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    bool show_demo_window;
+
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
 
     ImGui::Begin("Hello, world!"); 
     ImGui::Text("This is some useful text.");
     ImGui::Checkbox("Demo Window", &show_demo_window);
     ImGui::End();
 
-    if(show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
+   
 
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -887,7 +893,7 @@ void RenderImgui()
     ImGui::Render();
     //g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
     //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
-    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void InitCamera()
