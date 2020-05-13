@@ -16,10 +16,6 @@
 
 #include "main.h"
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx11.h"
-
 DirectX::XMFLOAT4 g_EyePosition(0.0f, 0, -3, 1.0f);
 
 //--------------------------------------------------------------------------------------
@@ -97,11 +93,17 @@ ID3D11Buffer* g_pLightConstantBuffer2 = nullptr;
 int g_texNum = 10;
 ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_texNum];
 
+ImGuiIO io;
+
 
 void SetupImgui();
 void RenderImgui();
 void InitCamera();
 HRESULT SetupPomShader();
+
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 //--------------------------------------------------------------------------------------
 // Entry point to the program. Initializes everything and goes into a message processing 
@@ -641,6 +643,9 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
     PAINTSTRUCT ps;
     HDC hdc;
 
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
+
     switch( message )
     {
 	case WM_LBUTTONDOWN:
@@ -689,6 +694,9 @@ void Render()
         t = ( timeCur - timeStart ) / 1000.0f;
     }
 
+
+    RenderImgui();
+
     // Clear the back buffer
     g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, Colors::MidnightBlue );
 
@@ -696,7 +704,7 @@ void Render()
     g_pImmediateContext->ClearDepthStencilView( g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
 
-
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 
     //CAMERA STUFFFFFFFFFFFFF
@@ -772,7 +780,7 @@ void Render()
 
     int chosenEffect = 2;
     ConstantBufferPOM cbPOM;
-    //mGO = g_GraphCubeTest.GetWorld();
+    mGO = g_GraphCubeTest.GetWorld();
     cbPOM.mWorld = XMMatrixTranspose(*mGO);
     cbPOM.mView = XMMatrixTranspose(g_View);
     cbPOM.mProjection = XMMatrixTranspose(g_Projection);
@@ -784,13 +792,14 @@ void Render()
 
     LightPropertiesConstantBuffer2 lightProperties2;
     lightProperties2.EyePosition = LightPosition;
-    lightProperties2.CameraPosition = g_CameraManager.GetCurrentCamera()->Position();
+    lightProperties2.CameraPosition = LightPosition;//g_CameraManager.GetCurrentCamera()->Position();
     lightProperties2.Lights[0] = light;
     g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
 
 
 
     // Render the cube
+    /*
     g_CubeTest.SetVertexBuffer(g_pImmediateContext);
     g_CubeTest.SetIndexBuffer(g_pImmediateContext);
 
@@ -800,14 +809,14 @@ void Render()
 	g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
     //set effect's vertex and pixel shaders
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
     g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
     g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
 
     //set textures and sampler
     ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
-	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);*/
 
     //g_CubeTest.Draw(g_pImmediateContext);
 
@@ -818,12 +827,14 @@ void Render()
     g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
 
     g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
     g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
 
     g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
     g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
     g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
     g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
     
     
     //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
@@ -844,6 +855,10 @@ void SetupImgui()
     IMGUI_CHECKVERSION();
 
     ImGui::CreateContext();
+
+    io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
     ImGui::StyleColorsDark();
 
     ImGui_ImplWin32_Init(g_hWnd);
@@ -856,22 +871,29 @@ void RenderImgui()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
+    bool show_demo_window;
+
     ImGui::Begin("Hello, world!"); 
     ImGui::Text("This is some useful text.");
+    ImGui::Checkbox("Demo Window", &show_demo_window);
     ImGui::End();
+
+    if(show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
+
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     // Rendering
     ImGui::Render();
     //g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, NULL);
     //g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, (float*)&clear_color);
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void InitCamera()
 {
     g_CameraManager.InitCameras(g_viewWidth, g_viewHeight);
-    g_CameraManager.SetCurrentCamera(CameraType::ORBIT);
+    g_CameraManager.SetCurrentCamera(CameraType::FRONT);
 
 }
 
