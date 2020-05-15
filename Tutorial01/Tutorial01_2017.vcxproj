@@ -365,6 +365,7 @@
     <ClInclude Include="d_GUIManager.h" />
     <ClInclude Include="d_LightManager.h" />
     <ClInclude Include="d_Mesh.h" />
+    <ClInclude Include="d_Quad.h" />
     <ClInclude Include="d_TextureManager.h" />
     <ClInclude Include="d_Utilities.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -397,6 +398,7 @@
     <ClCompile Include="d_GUIManager.cpp" />
     <ClCompile Include="d_LightManager.cpp" />
     <ClCompile Include="d_Mesh.cpp" />
+    <ClCompile Include="d_Quad.cpp" />
     <ClCompile Include="d_TextureManager.cpp" />
     <ClCompile Include="d_Utilities.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />

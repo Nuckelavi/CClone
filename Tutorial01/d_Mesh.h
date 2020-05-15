@@ -7,6 +7,7 @@
 
 #include "structures.h"
 
+//template <typename T>
 class Mesh
 {
 protected:

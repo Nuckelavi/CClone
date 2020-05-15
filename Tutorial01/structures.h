@@ -1,5 +1,5 @@
 #pragma once
-using namespace std;
+//using namespace std;
 //using namespace DirectX;
 
 //--------------------------------------------------------------------------------------
@@ -151,18 +151,8 @@ struct POMVertex
 	DirectX::XMFLOAT3 Bitangent = { 0, 0, 0 };
 };
 
-//cbuffer ConstantBuffer : register(b0)
-//{
-//	matrix World;
-//	matrix View;
-//	matrix Projection;
-//
-//	float fHeightScale;
-//	int nMinSamples;
-//	int nMaxSamples;
-//	int nEffectID;
-//
-//	/*float fNearDepth;
-//	float fFarDepth;
-//	float2 pad0;*/
-//}
+struct QuadVertex
+{
+	DirectX::XMFLOAT4 Pos;
+	DirectX::XMFLOAT2 TexCoord;
+};

@@ -49,6 +49,7 @@
     <ClCompile Include="d_Utilities.cpp" />
     <ClCompile Include="d_GraphicsCube.cpp" />
     <ClCompile Include="d_GUIManager.cpp" />
+    <ClCompile Include="d_Quad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -130,6 +131,7 @@
     <ClInclude Include="d_Utilities.h" />
     <ClInclude Include="d_GraphicsCube.h" />
     <ClInclude Include="d_GUIManager.h" />
+    <ClInclude Include="d_Quad.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">
