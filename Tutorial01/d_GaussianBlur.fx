@@ -11,167 +11,103 @@
 //--------------------------------------------------------------------------------------
 cbuffer ConstantBuffer : register( b0 )
 {
-	matrix World;
-	matrix View;
-	matrix Projection;
-	float4 vOutputColor;
+	float4x4 mInvWVP;
+	float4x4 mPrevVP;
+	float4x4 mInvProj;
+
+	float2 vScreenSize;
+	int blur;
+	int iEffectID;
+
+	float fDepth;
+	int iPassIndex;
+	float2 pad0;
 }
 
 Texture2D txDiffuse : register(t0);
 SamplerState samLinear : register(s0);
 
-#define MAX_LIGHTS 1
-// Light types.
-#define DIRECTIONAL_LIGHT 0
-#define POINT_LIGHT 1
-#define SPOT_LIGHT 2
-
-struct _Material
-{
-	float4  Emissive;       // 16 bytes
-							//----------------------------------- (16 byte boundary)
-	float4  Ambient;        // 16 bytes
-							//------------------------------------(16 byte boundary)
-	float4  Diffuse;        // 16 bytes
-							//----------------------------------- (16 byte boundary)
-	float4  Specular;       // 16 bytes
-							//----------------------------------- (16 byte boundary)
-	float   SpecularPower;  // 4 bytes
-	bool    UseTexture;     // 4 bytes
-	float2  Padding;        // 8 bytes
-							//----------------------------------- (16 byte boundary)
-};  // Total:               // 80 bytes ( 5 * 16 )
-
-cbuffer MaterialProperties : register(b1)
-{
-	_Material Material;
-};
-
-struct Light
-{
-	float4      Position;               // 16 bytes
-										//----------------------------------- (16 byte boundary)
-	float4      Direction;              // 16 bytes
-										//----------------------------------- (16 byte boundary)
-	float4      Color;                  // 16 bytes
-										//----------------------------------- (16 byte boundary)
-	float       SpotAngle;              // 4 bytes
-	float       ConstantAttenuation;    // 4 bytes
-	float       LinearAttenuation;      // 4 bytes
-	float       QuadraticAttenuation;   // 4 bytes
-										//----------------------------------- (16 byte boundary)
-	int         LightType;              // 4 bytes
-	bool        Enabled;                // 4 bytes
-	int2        Padding;                // 8 bytes
-										//----------------------------------- (16 byte boundary)
-};  // Total:                           // 80 bytes (5 * 16)
-
-cbuffer LightProperties : register(b2)
-{
-	float4 EyePosition;                 // 16 bytes
-										//----------------------------------- (16 byte boundary)
-	float4 GlobalAmbient;               // 16 bytes
-										//----------------------------------- (16 byte boundary)
-	Light Lights[MAX_LIGHTS];           // 80 * 8 = 640 bytes
-}; 
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
     float4 Pos : POSITION;
-	float3 Norm : NORMAL;
 	float2 Tex : TEXCOORD0;
 };
 
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
-	float4 worldPos : POSITION;
-	float3 Norm : NORMAL;
 	float2 Tex : TEXCOORD0;
 };
 
-
-float4 DoDiffuse(Light light, float3 L, float3 N)
+/*
+float4 BoxBlur(float2 texCoord)
 {
-	float NdotL = max(0, dot(N, L));
-	return light.Color * NdotL;
+	//I know to get more blurred effect, you're meant to use multiple iterations, however... 
+	//just dividing screensize by 2 gives similar effects
+	float screenReduce = 2.0f;
+	float xOffset = 1.0f / (vScreenSize.x / screenReduce);
+	float yOffset = 1.0f / (vScreenSize.y / screenReduce);
+
+	//9 surrounding pixels
+	float4 topLeft = txDiffuse.Sample(samLinear, float2(texCoord.x - xOffset, texCoord.y - yOffset));
+	float4 topMid = txDiffuse.Sample(samLinear, float2(texCoord.x, texCoord.y - 1.0f));
+	float4 topRight = txDiffuse.Sample(samLinear, float2(texCoord.x + xOffset, texCoord.y - yOffset));
+
+	float4 midLeft = txDiffuse.Sample(samLinear, float2(texCoord.x - xOffset, texCoord.y));
+	float4 midMid = txDiffuse.Sample(samLinear, texCoord);
+	float4 midRight = txDiffuse.Sample(samLinear, float2(texCoord.x + xOffset, texCoord.y));
+
+	float4 bottomLeft = txDiffuse.Sample(samLinear, float2(texCoord.x - xOffset, texCoord.y + yOffset));
+	float4 bottomMid = txDiffuse.Sample(samLinear, float2(texCoord.x, texCoord.y + yOffset));
+	float4 bottomRight = txDiffuse.Sample(samLinear, float2(texCoord.x + xOffset, texCoord.y + yOffset));
+
+	//final colour
+	float4 col = (topLeft + topMid + topRight + midLeft + midMid + midRight + bottomLeft + bottomMid + bottomRight) / 9.0f;
+
+	return col;
 }
 
-float4 DoSpecular(Light lightObject, float3 vertexToEye, float3 lightDirectionToVertex, float3 Normal)
+float4 GaussianBlur(float2 texCoord, bool horizontal)
 {
-	float4 lightDir = float4(normalize(-lightDirectionToVertex),1);
-	vertexToEye = normalize(vertexToEye);
-
-	float lightIntensity = saturate(dot(Normal, lightDir));
-	float4 specular = float4(0, 0, 0, 0);
-	if (lightIntensity > 0.0f)
+	float weight[] = { 0.9f, 0.55f, 0.18f, 0.1f };
+	float sum = 0.0f;
+	for (int i = 0; i < 4; ++i)
 	{
-		float3  reflection = normalize(2 * lightIntensity * Normal - lightDir);
-		specular = pow(saturate(dot(reflection, vertexToEye)), Material.SpecularPower); // 32 = specular power
+		sum += weight[i];
+	}
+	sum += 1.0f;
+	for (int i = 0; i < 4; ++i)
+	{
+		weight[i] /= sum;
 	}
 
-	return specular;
-}
+	float2 texOffset = 1.0f / (vScreenSize / 2.0f);
 
-float DoAttenuation(Light light, float d)
-{
-	return 1.0f / (light.ConstantAttenuation + light.LinearAttenuation * d + light.QuadraticAttenuation * d * d);
-}
+	float4 centrePixel = txDiffuse.Sample(samLinear, texCoord) * weight[0];
 
-struct LightingResult
-{
-	float4 Diffuse;
-	float4 Specular;
-};
-
-LightingResult DoPointLight(Light light, float3 vertexToEye, float4 vertexPos, float3 N)
-{
-	LightingResult result;
-
-	float3 LightDirectionToVertex = (vertexPos - light.Position).xyz;
-	float distance = length(LightDirectionToVertex);
-	LightDirectionToVertex = LightDirectionToVertex  / distance;
-
-	float3 vertexToLight = (light.Position - vertexPos).xyz;
-	distance = length(vertexToLight);
-	vertexToLight = vertexToLight / distance;
-
-	float attenuation = DoAttenuation(light, distance);
-	attenuation = 1;
-
-
-	result.Diffuse = DoDiffuse(light, vertexToLight, N) * attenuation;
-	result.Specular = DoSpecular(light, vertexToEye, LightDirectionToVertex, N) * attenuation;
-
-	return result;
-}
-
-LightingResult ComputeLighting(float4 vertexPos, float3 N)
-{
-	float3 vertexToEye = normalize(EyePosition - vertexPos).xyz;
-
-	LightingResult totalResult = { { 0, 0, 0, 0 },{ 0, 0, 0, 0 } };
-
-	[unroll]
-	for (int i = 0; i < MAX_LIGHTS; ++i)
+	for (int i = 1; i < 4; ++i)
 	{
-		LightingResult result = { { 0, 0, 0, 0 },{ 0, 0, 0, 0 } };
+		float2 offset = float2(0.0f, 0.0f);
 
-		if (!Lights[i].Enabled) 
-			continue;
-		
-		result = DoPointLight(Lights[i], vertexToEye, vertexPos, N);
-		
-		totalResult.Diffuse += result.Diffuse;
-		totalResult.Specular += result.Specular;
+		if (horizontal)
+		{
+			offset = float2(texOffset.x * i, 0.0f);
+		}
+		else
+		{
+			offset = float2(0.0f, texOffset.y * i);
+		}
+
+		centrePixel += txDiffuse.Sample(samLinear, texCoord - offset) * weight[i];
+		centrePixel += txDiffuse.Sample(samLinear, texCoord + offset) * weight[i];
 	}
 
-	totalResult.Diffuse = saturate(totalResult.Diffuse);
-	totalResult.Specular = saturate(totalResult.Specular);
-
-	return totalResult;
+	return centrePixel;
 }
+*/
+
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
@@ -179,14 +115,8 @@ LightingResult ComputeLighting(float4 vertexPos, float3 N)
 PS_INPUT VS( VS_INPUT input )
 {
     PS_INPUT output = (PS_INPUT)0;
-    output.Pos = mul( input.Pos, World );
-	output.worldPos = output.Pos;
-    output.Pos = mul( output.Pos, View );
-    output.Pos = mul( output.Pos, Projection );
 
-	// multiply the normal by the world transform (to go from model space to world space)
-	output.Norm = mul(float4(input.Norm, 1), World).xyz;
-
+	output.Pos = input.Pos;
 	output.Tex = input.Tex;
     
     return output;
@@ -199,29 +129,12 @@ PS_INPUT VS( VS_INPUT input )
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
-	LightingResult lit = ComputeLighting(IN.worldPos, normalize(IN.Norm));
+	float4 texColor = {1, 1, 1, 1};
+	texColor = txDiffuse.Sample(samLinear, IN.Tex);
 
-	float4 texColor = { 1, 1, 1, 1 };
+	//blue tint
+	texColor.b *= 5.0f;
+	if (texColor.b >= 1.0f) { texColor.b = 1.0f; }
 
-	float4 emissive = Material.Emissive;
-	float4 ambient = Material.Ambient * GlobalAmbient;
-	float4 diffuse = Material.Diffuse * lit.Diffuse;
-	float4 specular = Material.Specular * lit.Specular;
-
-	if (Material.UseTexture)
-	{
-		texColor = txDiffuse.Sample(samLinear, IN.Tex);
-	}
-
-	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
-
-	return finalColor;
-}
-
-//--------------------------------------------------------------------------------------
-// PSSolid - render a solid color
-//--------------------------------------------------------------------------------------
-float4 PSSolid(PS_INPUT input) : SV_Target
-{
-	return vOutputColor;
+	return texColor;
 }

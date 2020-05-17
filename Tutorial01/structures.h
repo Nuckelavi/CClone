@@ -118,6 +118,21 @@ struct ConstantBufferPOM
 	int nEffectID;
 };
 
+struct ConstantBufferQuad
+{
+	DirectX::XMMATRIX mInvWVP;
+	DirectX::XMMATRIX mPrevVP;
+	DirectX::XMMATRIX mInvProj;
+
+	DirectX::XMFLOAT2 vScreenSize;
+	int blur;
+	int iEffectID;
+
+	float fDepth;
+	int iPassIndex;
+	DirectX::XMFLOAT2 pad0;
+};
+
 struct LightPropertiesConstantBuffer2
 {
 	LightPropertiesConstantBuffer2() : 

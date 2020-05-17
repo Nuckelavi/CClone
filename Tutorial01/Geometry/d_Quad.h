@@ -14,13 +14,15 @@ private:
 	DirectX::XMFLOAT3 _position;
 
 	static constexpr int NUM_VERTICES = 4;
-	static constexpr int NUM_INDICES = 6;
+	
 
 	ID3D11Buffer* _pVertexBuffer;
 	ID3D11Buffer* _pIndexBuffer;
 
 	std::vector<QuadVertex> _vertices;
 	std::vector<UINT> _indices;
+	
+	static constexpr int NUM_INDICES = 6;
 
 public:
 	Quad();
