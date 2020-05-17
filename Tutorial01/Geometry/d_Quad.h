@@ -7,6 +7,12 @@
 
 #include "..\structures.h"
 
+struct QuadVertex
+{
+	DirectX::XMFLOAT4 Pos;
+	DirectX::XMFLOAT2 TexCoord;
+};
+
 class Quad
 {
 private:

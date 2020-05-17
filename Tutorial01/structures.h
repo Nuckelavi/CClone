@@ -166,8 +166,4 @@ struct POMVertex
 	DirectX::XMFLOAT3 Bitangent = { 0, 0, 0 };
 };
 
-struct QuadVertex
-{
-	DirectX::XMFLOAT4 Pos;
-	DirectX::XMFLOAT2 TexCoord;
-};
+

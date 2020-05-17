@@ -59,6 +59,12 @@ HRESULT Quad::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext)
 	_indices[3] = 2;
 	_indices[4] = 1;
 	_indices[5] = 3;
+	/*_indices[0] = 0;
+	_indices[1] = 3;
+	_indices[2] = 2;
+	_indices[3] = 1;
+	_indices[4] = 3;
+	_indices[5] = 0;*/
 
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;

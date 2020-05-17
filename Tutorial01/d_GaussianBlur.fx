@@ -11,9 +11,9 @@
 //--------------------------------------------------------------------------------------
 cbuffer ConstantBuffer : register( b0 )
 {
-	float4x4 mInvWVP;
-	float4x4 mPrevVP;
-	float4x4 mInvProj;
+	matrix mInvWVP;
+	matrix mPrevVP;
+	matrix mInvProj;
 
 	float2 vScreenSize;
 	int blur;
@@ -130,11 +130,11 @@ PS_INPUT VS( VS_INPUT input )
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
 	float4 texColor = {1, 1, 1, 1};
-	texColor = txDiffuse.Sample(samLinear, IN.Tex);
+	//texColor = txDiffuse.Sample(samLinear, IN.Tex);
 
 	//blue tint
-	texColor.b *= 5.0f;
-	if (texColor.b >= 1.0f) { texColor.b = 1.0f; }
+	/*texColor.b *= 5.0f;
+	if (texColor.b >= 1.0f) { texColor.b = 1.0f; }*/
 
 	return texColor;
 }
