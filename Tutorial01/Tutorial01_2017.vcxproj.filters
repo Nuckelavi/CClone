@@ -4,9 +4,6 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
-    <ClCompile Include="d_Mesh.cpp" />
-    <ClCompile Include="d_Cube.cpp" />
-    <ClCompile Include="d_Grid.cpp" />
     <ClCompile Include="d_Block.cpp" />
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>ImGui</Filter>
@@ -47,9 +44,22 @@
       <Filter>Camera</Filter>
     </ClCompile>
     <ClCompile Include="d_Utilities.cpp" />
-    <ClCompile Include="d_GraphicsCube.cpp" />
     <ClCompile Include="d_GUIManager.cpp" />
-    <ClCompile Include="d_Quad.cpp" />
+    <ClCompile Include="Geometry\d_Cube.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\d_GraphicsCube.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\d_Grid.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\d_Mesh.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry\d_Quad.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -67,6 +77,9 @@
     <Filter Include="Camera">
       <UniqueIdentifier>{8bb6e2cd-a4d3-4294-9029-7fd3d2f55006}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{53d5a9e4-1214-42a8-bc09-878da565b25d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
@@ -76,9 +89,6 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="structures.h" />
-    <ClInclude Include="d_Mesh.h" />
-    <ClInclude Include="d_Cube.h" />
-    <ClInclude Include="d_Grid.h" />
     <ClInclude Include="d_Block.h" />
     <ClInclude Include="d_Chunk.h" />
     <ClInclude Include="imgui\imconfig.h">
@@ -129,9 +139,22 @@
       <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="d_Utilities.h" />
-    <ClInclude Include="d_GraphicsCube.h" />
     <ClInclude Include="d_GUIManager.h" />
-    <ClInclude Include="d_Quad.h" />
+    <ClInclude Include="Geometry\d_Cube.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\d_GraphicsCube.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\d_Grid.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\d_Mesh.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry\d_Quad.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">

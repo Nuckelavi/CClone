@@ -28,8 +28,8 @@
 #include "d_TextureManager.h"
 
 //geometry - meshes
-#include "d_Cube.h"
-#include "d_GraphicsCube.h"
+#include "Geometry/d_Cube.h"
+#include "Geometry/d_GraphicsCube.h"
 
 using namespace std;
 

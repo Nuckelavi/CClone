@@ -97,7 +97,8 @@ ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_tex
 
 void InitCamera();
 HRESULT SetupPomShader();
-void RenderSurfaceDetailEffect(Light& light, int detailID);
+void RenderSurfaceDetailEffect();
+void RenderRegularCube();
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -836,30 +837,45 @@ void Render()
     switch (g_GUIManager.GetScene())
     {
     case Scene::PHYISCS:
+        RenderRegularCube();
         break;
     case Scene::NORMAL:
         cbPOM.nEffectID = 0;
+        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+        RenderSurfaceDetailEffect();
         break;
     case Scene::PARALLAX:
         cbPOM.nEffectID = 1;
+        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+        RenderSurfaceDetailEffect();
         break;
     case Scene::POM:
         cbPOM.nEffectID = 2;
+        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+        RenderSurfaceDetailEffect();
         break;
     case Scene::SELFSHADOWING:
         cbPOM.nEffectID = 4;
+        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+        RenderSurfaceDetailEffect();
         break;
     case Scene::GRAYSCALE:
     case Scene::BOXBLUR:
     case Scene::GAUSSIAN:
     case Scene::DOFBLUR:
+        RenderRegularCube();
         break;
     case Scene::HEIGHTMAP:
+    case Scene::FAULTFORM:
+    case Scene::DIAMONDSQUARE:
+    case Scene::CIRCLEHILL:
+    case Scene::VOXEL:
+        RenderRegularCube();
         break;
     }
 
 
-    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+    /*g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
 
     g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
     g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
@@ -875,14 +891,12 @@ void Render()
     g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
-    g_GraphCubeTest.Draw(g_pImmediateContext);
+    g_GraphCubeTest.Draw(g_pImmediateContext);*/
 
-    //g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
 
 
 
     g_GUIManager.Render();
-
 
 
     // Present our back buffer to our front buffer
@@ -1004,28 +1018,10 @@ HRESULT SetupPomShader()
     return hr;
 }
 
-/*
-void RenderSurfaceDetailEffect(Light& light, int detailID)
+
+void RenderSurfaceDetailEffect()
 {
-    int chosenEffect = 2;
-    ConstantBufferPOM cbPOM;
-    XMMATRIX* mGO = g_GraphCubeTest.GetWorld();
-    cbPOM.mWorld = XMMatrixTranspose(*mGO);
-    cbPOM.mView = XMMatrixTranspose(g_View);
-    cbPOM.mProjection = XMMatrixTranspose(g_Projection);
-    cbPOM.fHeightScale = 0.15f;//0.05f;
-    cbPOM.nMinSamples = 8;
-    cbPOM.nMaxSamples = 32;
-    cbPOM.nEffectID = 0;
-    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-
-    LightPropertiesConstantBuffer2 lightProperties2;
-    lightProperties2.EyePosition = g_LightManager.LightVec();
-    lightProperties2.CameraPosition = g_CameraManager.GetCurrentCamera()->Position();
-    lightProperties2.Lights[0] = light;
-    g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
-
-    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+    //g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
 
     g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
     g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
@@ -1042,4 +1038,27 @@ void RenderSurfaceDetailEffect(Light& light, int detailID)
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
     g_GraphCubeTest.Draw(g_pImmediateContext);
-}*/
+}
+
+void RenderRegularCube()
+{
+    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
+
+    //set constant buffers
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
+
+    //set effect's vertex and pixel shaders
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
+    //set textures and sampler
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
+    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
+    g_CubeTest.Draw(g_pImmediateContext);
+}

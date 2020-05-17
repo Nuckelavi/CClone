@@ -19,6 +19,7 @@ enum class Scene
     DOFBLUR,
     HEIGHTMAP,
     FAULTFORM,
+    DIAMONDSQUARE,
     CIRCLEHILL,
     VOXEL,
     LAST_ITEM

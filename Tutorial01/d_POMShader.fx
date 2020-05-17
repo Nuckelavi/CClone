@@ -213,7 +213,7 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
 	//this time you have to make sure the binormal is orthogonal as well 
 	float3 B = normalize(binorm - dot(binorm, tangent) * tangent);
 
-	float3x3 TBN = float3x3(-T, -B, N);
+	float3x3 TBN = float3x3(T, B, N);
 
 	return TBN;
 }
