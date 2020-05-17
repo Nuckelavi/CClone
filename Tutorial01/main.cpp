@@ -84,6 +84,7 @@ Cube g_CubeTest;
 //Camera g_CameraTest;
 
 GraphicsCube g_GraphCubeTest;
+Quad g_QuadTest;
 
 //delete after creating effects
 ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
@@ -96,8 +97,14 @@ ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_tex
 
 
 void InitCamera();
+
 HRESULT SetupPomShader();
 void RenderSurfaceDetailEffect();
+
+void SetupCustomRenderTargets();
+void SetupQuadShader();
+void RenderQuadEffects();
+
 void RenderRegularCube();
 
 
@@ -396,6 +403,13 @@ HRESULT InitDevice()
 
     g_pImmediateContext->OMSetRenderTargets( 1, &g_pRenderTargetView, g_pDepthStencilView );
 
+
+    
+    SetupCustomRenderTargets();
+
+
+
+
     // Setup the viewport
     D3D11_VIEWPORT vp;
     vp.Width = (FLOAT)width;
@@ -431,6 +445,10 @@ HRESULT InitDevice()
         return hr;
 
     hr = g_GraphCubeTest.InitMesh(g_pd3dDevice, g_pImmediateContext);
+    if (FAILED(hr))
+        return hr;
+
+    hr = g_QuadTest.InitMesh(g_pd3dDevice, g_pImmediateContext);
     if (FAILED(hr))
         return hr;
 
@@ -517,7 +535,7 @@ HRESULT		InitMesh()
     SetupPomShader();
     
 
-
+    SetupQuadShader();
 
 
 
@@ -825,6 +843,7 @@ void Render()
     case Scene::GAUSSIAN:
     case Scene::DOFBLUR:
         RenderRegularCube();
+        RenderQuadEffects();
         break;
     case Scene::HEIGHTMAP:
     case Scene::FAULTFORM:
@@ -1005,4 +1024,21 @@ void RenderRegularCube()
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
     g_CubeTest.Draw(g_pImmediateContext);
+}
+
+
+
+void SetupCustomRenderTargets()
+{
+
+}
+
+void SetupQuadShader()
+{
+
+}
+
+void RenderQuadEffects()
+{
+
 }

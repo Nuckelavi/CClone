@@ -30,6 +30,7 @@
 //geometry - meshes
 #include "Geometry/d_Cube.h"
 #include "Geometry/d_GraphicsCube.h"
+#include "Geometry/d_Quad.h"
 
 using namespace std;
 
