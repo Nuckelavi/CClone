@@ -792,45 +792,6 @@ void Render()
     g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
 
 
-
-    // Render the cube
-    /*
-    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
-    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
-
-    //set constant buffers
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
-
-    //set effect's vertex and pixel shaders
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-
-    //set textures and sampler
-    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
-    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
-	g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);*/
-
-    //g_CubeTest.Draw(g_pImmediateContext);
-
-    
-
-    // render graphics cube
-   /* g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
-    g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
-
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
-
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
-    g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
-    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
-    g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);*/
     
     
 
@@ -875,23 +836,6 @@ void Render()
     }
 
 
-    /*g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-
-    g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
-    g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
-
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
-
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
-    g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
-    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
-    g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-
-    g_GraphCubeTest.Draw(g_pImmediateContext);*/
 
 
 
