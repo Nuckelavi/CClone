@@ -93,7 +93,11 @@ Cube g_CubeTest;
 GraphicsCube g_GraphCubeTest;
 Quad g_QuadTest;
 //Grid g_GridTest;
-GridTerrain g_TerrainTest;
+//GridTerrain g_TerrainTest;
+GridTerrain g_TerrainHM;
+GridTerrain g_TerrainFF;
+GridTerrain g_TerrainDS;
+GridTerrain g_TerrainCH;
 
 //delete after creating effects ----------------------------
 ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
@@ -954,9 +958,61 @@ void Render()
         RenderQuadEffects();
         break;
     case Scene::HEIGHTMAP:
+        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
+        RenderRegularCube();
+
+        g_TerrainHM.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
+        g_TerrainHM.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
+
+        mGO = g_TerrainHM.GetTerrainGrid()->GetWorld();
+        cb1.mWorld = XMMatrixTranspose(*mGO);
+        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+        g_TerrainHM.Draw(g_pImmediateContext);
+        break;
     case Scene::FAULTFORM:
+        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
+        RenderRegularCube();
+
+        g_TerrainFF.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
+        g_TerrainFF.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
+
+        mGO = g_TerrainFF.GetTerrainGrid()->GetWorld();
+        cb1.mWorld = XMMatrixTranspose(*mGO);
+        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+        g_TerrainFF.Draw(g_pImmediateContext);
+        break;
     case Scene::DIAMONDSQUARE:
+        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
+        RenderRegularCube();
+
+        g_TerrainDS.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
+        g_TerrainDS.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
+
+        mGO = g_TerrainDS.GetTerrainGrid()->GetWorld();
+        cb1.mWorld = XMMatrixTranspose(*mGO);
+        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+        g_TerrainDS.Draw(g_pImmediateContext);
+        break;
     case Scene::CIRCLEHILL:
+        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
+        RenderRegularCube();
+
+        g_TerrainCH.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
+        g_TerrainCH.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
+
+        mGO = g_TerrainCH.GetTerrainGrid()->GetWorld();
+        cb1.mWorld = XMMatrixTranspose(*mGO);
+        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+        g_TerrainCH.Draw(g_pImmediateContext);
+        break;
     case Scene::VOXEL:
         redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
         g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0); 
@@ -981,29 +1037,14 @@ void Render()
 
 
     //terrain render test
-    g_TerrainTest.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
-    g_TerrainTest.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
+    /*g_TerrainHM.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
+    g_TerrainHM.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
 
-    mGO = g_TerrainTest.GetTerrainGrid()->GetWorld();
+    mGO = g_TerrainHM.GetTerrainGrid()->GetWorld();
     cb1.mWorld = XMMatrixTranspose(*mGO);
     g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
 
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
-
-    //set effect's vertex and pixel shaders
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-
-    //set textures and sampler
-    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
-    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-
-    g_TerrainTest.Draw(g_pImmediateContext);
+    g_TerrainHM.Draw(g_pImmediateContext);*/
 
 
 
@@ -1379,24 +1420,48 @@ void RenderQuadEffects()
 
 void SetupTerrain()
 {
-    /*g_TerrainTest.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
-    g_TerrainTest.GetHmGen().LoadHeightmap(g_TerrainTest.GetHeightValues(),
-        g_TerrainTest.GetHMStruct());
-    g_TerrainTest.SetGridRatio(0.3f);
-    g_TerrainTest.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f, false, true, 1);
+    //FROM HEIGHTMAP
+    g_TerrainHM.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
+    g_TerrainHM.GetHmGen().LoadHeightmap(g_TerrainHM.GetHeightValues(),
+        g_TerrainHM.GetHMStruct());
+    g_TerrainHM.SetGridRatio(0.3f);
+    g_TerrainHM.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f, false, true, 1);
 
-    g_TerrainTest.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainTest.GetHMScale() / 2.0f, 0.0f);
-    g_TerrainTest.Update(0.0f);*/
+    g_TerrainHM.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainHM.GetHMScale() / 2.0f, 0.0f);
+    g_TerrainHM.Update(0.0f);
 
 
-    g_TerrainTest.SetHeightmap(154, 154, "");
-    g_TerrainTest.GetHmGen().FaultFormation(g_TerrainTest.GetHeightValues(), 
-        g_TerrainTest.GetHMStruct().width, 100, 1.0f, false);
-    g_TerrainTest.SetGridRatio(1.0f);
-    g_TerrainTest.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 10.0f);
+    //FAULT FORMATION
+    g_TerrainFF.SetHeightmap(154, 154, "");
+    g_TerrainFF.GetHmGen().FaultFormation(g_TerrainFF.GetHeightValues(), 
+        g_TerrainFF.GetHMStruct().width, 200, true);
+    g_TerrainFF.SetGridRatio(1.0f);
+    g_TerrainFF.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f);
 
-    g_TerrainTest.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainTest.GetHMScale() / 2.0f, 0.0f);
-    g_TerrainTest.Update(0.0f);
+    g_TerrainFF.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainFF.GetHMScale() * 0.75f, 0.0f);
+    g_TerrainFF.Update(0.0f);
 
+
+    //DIAMOND SQUARE
+    int texpow = 7;
+    int texDim = (int)std::pow(2, 7) + 1;
+    g_TerrainDS.SetHeightmap(texDim, texDim, "");
+    g_TerrainDS.GetHmGen().DiamondSquare(g_TerrainDS.GetHeightValues(), texpow, g_TerrainDS.GetHMStruct().width);
+    g_TerrainDS.SetGridRatio(1.0f);
+    g_TerrainDS.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f, false, true, 4);
+
+    g_TerrainDS.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainDS.GetHMScale() * 0.5f, 0.0f);
+    g_TerrainDS.Update(0.0f);
+
+
+    //CIRCLE HILL
+    g_TerrainCH.SetHeightmap(154, 154, "");
+    g_TerrainCH.GetHmGen().CircleHill(g_TerrainCH.GetHeightValues(), g_TerrainCH.GetHMStruct().width,
+        g_TerrainCH.GetHMStruct().height, 200, 2.0f, 20.0f);
+    g_TerrainCH.SetGridRatio(1.0f);
+    g_TerrainCH.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 20.0f);
+
+    g_TerrainCH.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainCH.GetHMScale() * 0.5f, 0.0f);
+    g_TerrainCH.Update(0.0f);
 
 }

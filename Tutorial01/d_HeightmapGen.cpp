@@ -31,7 +31,7 @@ void HeightmapGen::LoadHeightmap(std::vector<float>& heights, Heightmap& heightm
     }
 }
 
-void HeightmapGen::FaultFormation(std::vector<float>& heights, const int texDim, const int iterations, float scale, bool constHeightShift)
+void HeightmapGen::FaultFormation(std::vector<float>& heights, const int texDim, const int iterations, bool constHeightShift, bool randomSide)
 {
     const int texSize = texDim * texDim;
     heights.clear();
@@ -40,12 +40,13 @@ void HeightmapGen::FaultFormation(std::vector<float>& heights, const int texDim,
     std::mt19937 mersenne{ static_cast<std::mt19937::result_type>(std::time(nullptr)) };
     std::uniform_int_distribution<> randTex{ 0, texSize - 1 };
     std::uniform_int_distribution<> randHeight{ 1, (int)iterations };
+    std::uniform_int_distribution<> randBool{ 0, 1 };
 
 
     float offset = 1.0f;
     if (constHeightShift)
     {
-        offset = 2.0f * scale / (float)iterations;
+        offset = 2.0f / (float)iterations;
     }
 
     for (int i = 0; i < iterations; ++i)
@@ -72,7 +73,7 @@ void HeightmapGen::FaultFormation(std::vector<float>& heights, const int texDim,
         //just randomly offset variables, by no more than 0.5 though
         if (!constHeightShift)
         {
-            offset = 0.5f * scale / (float)randHeight(mersenne);
+            offset = 0.5f / (float)randHeight(mersenne);
         }
 
         for (int y = 0; y < texDim; ++y)
@@ -81,22 +82,59 @@ void HeightmapGen::FaultFormation(std::vector<float>& heights, const int texDim,
 
             for (int x = 0; x < texDim; ++x)
             {
-
-                if (x > cutoff)
+                //FLIP FLOP
+                if (randomSide == true && randBool(mersenne))
                 {
-                    heights[y * texDim + x] += offset;
+                    if (x > cutoff)
+                    {
+                        heights[y * texDim + x] -= offset;
+                    }
+                    else
+                    {
+                        heights[y * texDim + x] += offset;
+                    }
                 }
                 else
                 {
-                    heights[y * texDim + x] -= offset;
+                    if (x > cutoff)
+                    {
+                        heights[y * texDim + x] += offset;
+                    }
+                    else
+                    {
+                        heights[y * texDim + x] -= offset;
+                    }
                 }
             }
         }
+    }
 
+    //normalize
+    float minHeight = heights[0];
+    float maxHeight = heights[0];
+    for (int i = 0; i < heights.size(); ++i)
+    {
+        if (heights[i] < minHeight)
+        {
+            minHeight = heights[i];
+        }
+        else if (heights[i] > maxHeight)
+        {
+            maxHeight = heights[i];
+        }
+    }
+
+    maxHeight -= minHeight;
+
+    int count = 0;
+    for (int i = 0; i < heights.size(); ++i)
+    {
+        heights[i] -= minHeight;
+        heights[i] = heights[i] / maxHeight;
     }
 }
 
-void HeightmapGen::DiamondSquare(std::vector<float>& heights, int texPower, int gridDim, float heightScale, float randScale)
+void HeightmapGen::DiamondSquare(std::vector<float>& heights, int texPower, int gridDim, float randScale)
 {
     const int n = 2;
     int texDim = pow(2, texPower) + 1;
@@ -174,10 +212,12 @@ void HeightmapGen::DiamondSquare(std::vector<float>& heights, int texPower, int 
             maxHeight = heightmap[i];
         }
     }
+    maxHeight -= minHeight;
 
     heights.clear();
     heights.resize(gridDim * gridDim, 0.0f);
-    float maxHeightDiff = maxHeight - minHeight;
+
+    //float maxHeightDiff = maxHeight - minHeight;
     int count = 0;
     for (int i = 0; i < heightmap.size(); ++i)
     {
@@ -188,22 +228,12 @@ void HeightmapGen::DiamondSquare(std::vector<float>& heights, int texPower, int 
 
         if (i % texDim < gridDim)
         {
-            heights[count] = heightmap[i] * heightScale / maxHeightDiff;
-            ++count;
+            heights[count++] = (heightmap[i] - minHeight) / maxHeight;
         }
-
-        /*
-        if (i % _heightmap.width >= _terrainGrid.GetWidth())
-        {
-            continue;
-        }
-
-        _scaledHeights.push_back(_heightmapValues[i] * _heightmap.scale);
-        */
     }
 }
 
-void HeightmapGen::CircleHill(std::vector<float>& heights, const int texDimX, const int texDimY, const int iterations, float scale, int radMin, int radMax, bool shouldFlatten, int flattenPower)
+void HeightmapGen::CircleHill(std::vector<float>& heights, const int texDimX, const int texDimY, const int iterations, int radMin, int radMax, bool shouldFlatten, int flattenPower)
 {
     const int texSize = texDimX * texDimY;
     heights.clear();
@@ -265,7 +295,5 @@ void HeightmapGen::CircleHill(std::vector<float>& heights, const int texDimX, co
         {
             heights[i] = pow(heights[i], flattenPower);
         }
-
-        heights[i] *= scale;
     }
 }
