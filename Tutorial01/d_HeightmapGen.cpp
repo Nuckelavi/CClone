@@ -27,7 +27,7 @@ void HeightmapGen::LoadHeightmap(std::vector<float>& heights, Heightmap& heightm
 
     for (int i = 0; i < heigthmapLength; ++i)
     {
-        heights.push_back(in[i] / 255.0f); //* heightmap.scale);
+        heights[i] = (in[i] / 255.0f); //* heightmap.scale);
     }
 }
 

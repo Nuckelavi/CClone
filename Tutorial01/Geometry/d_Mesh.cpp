@@ -22,8 +22,8 @@ Mesh::~Mesh()
 	if (_pIndexBuffer)
 		_pIndexBuffer->Release();
 
-	if (_pTextureResourceView)
-		_pTextureResourceView->Release();
+	/*if (_pTextureResourceView && _pTextureResourceView != nullptr)
+		_pTextureResourceView->Release();*/
 }
 
 HRESULT Mesh::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext)

@@ -92,7 +92,7 @@ Cube g_CubeTest;
 
 GraphicsCube g_GraphCubeTest;
 Quad g_QuadTest;
-Grid g_GridTest;
+//Grid g_GridTest;
 GridTerrain g_TerrainTest;
 
 //delete after creating effects ----------------------------
@@ -126,6 +126,7 @@ HRESULT SetupQuadShader();
 void RenderQuadEffects();
 
 void RenderRegularCube();
+void SetupTerrain();
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -473,11 +474,12 @@ HRESULT InitDevice()
         return hr;
 
 
-    //g_TerrainTest.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
-    g_GridTest.Setup(5, 5);
+    /*g_GridTest.Setup(5, 5);
     hr = g_GridTest.InitMesh(g_pd3dDevice, g_pImmediateContext, std::vector<float>{0});
     if (FAILED(hr))
-        return hr;
+        return hr;*/
+
+    SetupTerrain();
 
 
     return S_OK;
@@ -965,8 +967,8 @@ void Render()
 
 
 
-
-    g_GridTest.SetVertexBuffer(g_pImmediateContext);
+    //grid render test
+   /* g_GridTest.SetVertexBuffer(g_pImmediateContext);
     g_GridTest.SetIndexBuffer(g_pImmediateContext);
 
     g_GridTest.SetTranslation(0.0f, -3.0f, 0.0f);
@@ -975,7 +977,34 @@ void Render()
     cb1.mWorld = XMMatrixTranspose(*mGO);
     g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
 
-    g_GridTest.Draw(g_pImmediateContext);
+    g_GridTest.Draw(g_pImmediateContext);*/
+
+
+    //terrain render test
+    g_TerrainTest.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
+    g_TerrainTest.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
+
+    mGO = g_TerrainTest.GetTerrainGrid()->GetWorld();
+    cb1.mWorld = XMMatrixTranspose(*mGO);
+    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
+
+    //set effect's vertex and pixel shaders
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
+    //set textures and sampler
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
+    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
+    g_TerrainTest.Draw(g_pImmediateContext);
+
 
 
 
@@ -1149,6 +1178,7 @@ void RenderRegularCube()
 
     //set constant buffers
     g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
     g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
     g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
@@ -1345,4 +1375,15 @@ void RenderQuadEffects()
 
     ID3D11ShaderResourceView* const pSRV[1] = { NULL };
     g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
+}
+
+void SetupTerrain()
+{
+    g_TerrainTest.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
+    g_TerrainTest.GetHmGen().LoadHeightmap(g_TerrainTest.GetHeightValues(),
+        g_TerrainTest.GetHMStruct());
+    g_TerrainTest.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 20.0f);
+
+    g_TerrainTest.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainTest.GetHMScale(), 0.0f);
+    g_TerrainTest.Update(0.0f);
 }

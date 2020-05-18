@@ -129,9 +129,9 @@ HRESULT Cube::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext)
 
 	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	hr = CreateDDSTextureFromFile(pd3dDevice, L"Resources\\stone.dds", nullptr, &_pTextureResourceView);
+	/*hr = CreateDDSTextureFromFile(pd3dDevice, L"Resources\\stone.dds", nullptr, &_pTextureResourceView);
 	if (FAILED(hr))
-		return hr;
+		return hr;*/
 
 
 	return hr;

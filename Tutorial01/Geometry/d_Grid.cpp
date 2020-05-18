@@ -2,7 +2,7 @@
 
 using namespace DirectX;
 
-Grid::Grid() : 
+Grid::Grid() :
 	_width(0),
 	_height(0)
 {
@@ -27,7 +27,7 @@ void Grid::Setup(int width, int height)
 }
 
 HRESULT Grid::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext,
-	std::vector<float> heights)
+	std::vector<float>& heights)
 {
 	_vertices.clear();
 	_vertices.resize(NUM_VERTICES);
@@ -41,10 +41,10 @@ HRESULT Grid::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext,
 			vertPos.y = 0.0f;
 			vertPos.z = -((float)y * CELLHEIGHT) + ((float)_height * 0.5f);
 
-			/*if (heights.size() > _vertices.size())
+			if (heights.size() == _vertices.size())
 			{
-				vertPos.y = heights[_vertices.size()];
-			}*/
+				vertPos.y = heights[y * _width + x];
+			}
 
 			XMFLOAT3 vertNorm = XMFLOAT3(0.0f, 1.0f, 0.0f);
 
@@ -55,6 +55,8 @@ HRESULT Grid::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext,
 			_vertices[y * _width + x] = SimpleVertex{ vertPos, vertNorm, vertTex };
 		}
 	}
+
+	_indices.clear();
 
 	for (int y = 0; y < _height - 1; ++y)
 	{

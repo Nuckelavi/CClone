@@ -12,6 +12,8 @@ struct Heightmap
 
 class HeightmapGen
 {
+private:
+
 public:
 	void LoadHeightmap(std::vector<float>& heights, Heightmap& heightmap);
 

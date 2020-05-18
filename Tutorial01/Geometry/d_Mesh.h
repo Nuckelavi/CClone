@@ -26,10 +26,11 @@ protected:
 
 	ID3D11Buffer* _pVertexBuffer;
 	ID3D11Buffer* _pIndexBuffer;
-	ID3D11ShaderResourceView* _pTextureResourceView;
+	//ID3D11ShaderResourceView* _pTextureResourceView;
 	/*ID3D11SamplerState* _pSamplerState;
 	MaterialPropertiesConstantBuffer _material;*/
 
+public:
 	std::vector<SimpleVertex> _vertices;
 	std::vector<UINT> _indices;
 

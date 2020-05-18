@@ -8,21 +8,39 @@
 
 class GridTerrain
 {
+
+
 private:
+	Grid* _terrain;
 	Heightmap _heightmap;
 	HeightmapGen _hmGen;
 
 	DirectX::XMFLOAT3 _position;
 	float _hmScale;
 
-	std::vector<ID3D11ShaderResourceView*> _textures;
+	
+
+	std::vector < const wchar_t*> _textures;
+	std::vector<ID3D11ShaderResourceView*> _textureSRVs;
 
 public:
+	std::vector<float> _heights;
+
+//private:
+	
+
+
+
+
+public:
+	GridTerrain();
+	~GridTerrain();
 
 	void AdjustHMToGrid();
-	void SetupTerrain();
+	void SetupTerrain(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext,
+		float scale, bool smooth = false, int smoothAmount = 0);
 	void Update(float t);
-	void Draw();
+	void Draw(ID3D11DeviceContext* _pContext);
 
 	void Smooth();
 	float AverageNeighbours(int x, int y);
@@ -36,5 +54,9 @@ public:
 	void SetHeightmap(int width, int height, std::string name);
 
 	//get
-	const HeightmapGen& GetHmGen() const { return _hmGen; }
+	HeightmapGen& GetHmGen() { return _hmGen; }
+	Heightmap& GetHMStruct() { return _heightmap; }
+	Grid* GetTerrainGrid() { return _terrain; }
+	float GetHMScale() { return _hmScale; }
+	std::vector<float>& GetHeightValues() { return _heights; }
 };
