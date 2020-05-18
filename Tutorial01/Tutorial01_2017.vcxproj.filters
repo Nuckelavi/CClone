@@ -4,7 +4,6 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
-    <ClCompile Include="d_Block.cpp" />
     <ClCompile Include="imgui\imgui.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
@@ -60,6 +59,15 @@
     <ClCompile Include="Geometry\d_Quad.cpp">
       <Filter>Geometry</Filter>
     </ClCompile>
+    <ClCompile Include="d_GridTerrain.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="d_HeightmapGen.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="d_Block.cpp">
+      <Filter>Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -80,6 +88,9 @@
     <Filter Include="Geometry">
       <UniqueIdentifier>{53d5a9e4-1214-42a8-bc09-878da565b25d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Terrain">
+      <UniqueIdentifier>{5c9706e0-64d1-4963-920e-2bdf421a12ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
@@ -89,8 +100,6 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="structures.h" />
-    <ClInclude Include="d_Block.h" />
-    <ClInclude Include="d_Chunk.h" />
     <ClInclude Include="imgui\imconfig.h">
       <Filter>ImGui</Filter>
     </ClInclude>
@@ -154,6 +163,18 @@
     </ClInclude>
     <ClInclude Include="Geometry\d_Quad.h">
       <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="d_GridTerrain.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="d_HeightmapGen.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="d_Block.h">
+      <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="d_Chunk.h">
+      <Filter>Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

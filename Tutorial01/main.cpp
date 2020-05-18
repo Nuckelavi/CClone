@@ -911,10 +911,11 @@ void Render()
     case Scene::DIAMONDSQUARE:
     case Scene::CIRCLEHILL:
     case Scene::VOXEL:
+        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0); 
         RenderRegularCube();
         break;
     }
-
 
 
 
@@ -1244,6 +1245,7 @@ void RenderQuadEffects()
     //for cube
     ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
+    if(tempsrv) tempsrv->Release();
     //for graphics cube
     //g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
 
