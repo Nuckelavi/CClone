@@ -15,7 +15,8 @@ GUIManager::GUIManager() :
     _camera(0),
     _currentScene(Scene::PHYISCS),
     _currentCam(nullptr),
-    _lastScene(0)
+    _lastScene(0),
+    _wireframe(false)
 {
     for (int i = 0; i < (int)Scene::LAST_ITEM; ++i)
     {
@@ -86,6 +87,7 @@ void GUIManager::Render()
         {
             ImGui::MenuItem("Camera Control", NULL, &_showCameraMenu);
             ImGui::MenuItem("Lights Control", NULL, &_showLightMenu);
+            ImGui::MenuItem("Wireframe", NULL, &_wireframe);
 
             ImGui::EndMenu();
         }

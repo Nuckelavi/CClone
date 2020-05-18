@@ -48,6 +48,7 @@ private:
     CameraManager* _cameraManager;
     const char* _currentCam;
     bool _effectsActive[(int)Scene::LAST_ITEM];
+    bool _wireframe;
 
 public:
     GUIManager();
@@ -64,4 +65,5 @@ public:
     void Shutdown();
 
     Scene GetScene() const { return _currentScene; }
+    bool GetWireframe() const { return _wireframe; }
 };

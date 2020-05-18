@@ -80,6 +80,9 @@ int						g_viewHeight;
 DrawableGameObject		g_GameObject;
 
 
+ID3D11RasterizerState* g_wireframeState;
+ID3D11RasterizerState* g_solidState;
+
 CameraManager g_CameraManager;
 LightManager g_LightManager = LightManager(g_EyePosition);
 TextureManager g_TextureManager;
@@ -602,6 +605,20 @@ HRESULT		InitMesh()
 
     hr = g_TextureManager.InitTextures(g_pd3dDevice);
 
+
+
+    D3D11_RASTERIZER_DESC rd = {};
+    rd.FillMode = D3D11_FILL_SOLID;
+    rd.CullMode = D3D11_CULL_BACK;
+    hr = g_pd3dDevice->CreateRasterizerState(&rd, &g_solidState);
+
+    rd = {};
+    rd.FillMode = D3D11_FILL_WIREFRAME;
+    rd.CullMode = D3D11_CULL_NONE;
+    hr = g_pd3dDevice->CreateRasterizerState(&rd, &g_wireframeState);
+
+
+
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
 	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -672,6 +689,11 @@ void CleanupDevice()
     if (g_pPixelShaderPOM) g_pPixelShaderPOM->Release();
     if (g_pConstantBufferPOM) g_pConstantBufferPOM->Release();
     if (g_pLightConstantBuffer2) g_pLightConstantBuffer2->Release();
+
+
+
+    if (g_solidState) g_solidState->Release();
+    if (g_wireframeState) g_wireframeState->Release();
 
     if (g_pVertexLayoutQuad && g_pVertexLayoutQuad != nullptr) g_pVertexLayoutQuad->Release();
     if (g_pVertexShaderQuad && g_pVertexShaderQuad != nullptr) g_pVertexShaderQuad->Release();
@@ -784,6 +806,15 @@ void Render()
     g_LightManager.Update();
 
 
+    //toggle global render state
+    if (g_GUIManager.GetWireframe())
+    {
+        g_pImmediateContext->RSSetState(g_wireframeState);
+    }
+    else
+    {
+        g_pImmediateContext->RSSetState(g_solidState);
+    }
 
 
 	// Update variables for a cube
