@@ -18,16 +18,13 @@ private:
 	DirectX::XMFLOAT3 _position;
 	float _hmScale;
 
+	float _gridRatio;
 	
-
 	std::vector < const wchar_t*> _textures;
 	std::vector<ID3D11ShaderResourceView*> _textureSRVs;
 
 public:
 	std::vector<float> _heights;
-
-//private:
-	
 
 
 
@@ -36,9 +33,9 @@ public:
 	GridTerrain();
 	~GridTerrain();
 
-	void AdjustHMToGrid();
+	void AdjustHMToGrid(bool shrinkHM);
 	void SetupTerrain(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext,
-		float scale, bool smooth = false, int smoothAmount = 0);
+		float scale, bool shrinkHM = false, bool smooth = false, int smoothAmount = 0);
 	void Update(float t);
 	void Draw(ID3D11DeviceContext* _pContext);
 
@@ -52,6 +49,7 @@ public:
 
 	//set
 	void SetHeightmap(int width, int height, std::string name);
+	void SetGridRatio(float gridRatio);
 
 	//get
 	HeightmapGen& GetHmGen() { return _hmGen; }
@@ -59,4 +57,6 @@ public:
 	Grid* GetTerrainGrid() { return _terrain; }
 	float GetHMScale() { return _hmScale; }
 	std::vector<float>& GetHeightValues() { return _heights; }
+
+
 };

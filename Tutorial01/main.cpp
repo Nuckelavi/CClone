@@ -1379,11 +1379,24 @@ void RenderQuadEffects()
 
 void SetupTerrain()
 {
-    g_TerrainTest.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
+    /*g_TerrainTest.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
     g_TerrainTest.GetHmGen().LoadHeightmap(g_TerrainTest.GetHeightValues(),
         g_TerrainTest.GetHMStruct());
-    g_TerrainTest.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 20.0f);
+    g_TerrainTest.SetGridRatio(0.3f);
+    g_TerrainTest.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f, false, true, 1);
 
-    g_TerrainTest.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainTest.GetHMScale(), 0.0f);
+    g_TerrainTest.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainTest.GetHMScale() / 2.0f, 0.0f);
+    g_TerrainTest.Update(0.0f);*/
+
+
+    g_TerrainTest.SetHeightmap(154, 154, "");
+    g_TerrainTest.GetHmGen().FaultFormation(g_TerrainTest.GetHeightValues(), 
+        g_TerrainTest.GetHMStruct().width, 100, 1.0f, false);
+    g_TerrainTest.SetGridRatio(1.0f);
+    g_TerrainTest.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 10.0f);
+
+    g_TerrainTest.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainTest.GetHMScale() / 2.0f, 0.0f);
     g_TerrainTest.Update(0.0f);
+
+
 }

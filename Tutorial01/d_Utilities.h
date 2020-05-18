@@ -17,4 +17,5 @@ namespace XMF3
 namespace F
 {
 	float Max(float a, float b);
+	int Round(float a);
 }

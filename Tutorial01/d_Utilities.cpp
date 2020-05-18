@@ -49,3 +49,15 @@ float F::Max(float a, float b)
 {
 	return a >= b ? a : b;
 }
+
+int F::Round(float a)
+{
+	float remainder = a - (int)a;
+	int roundedRemainder = 0;
+	if (remainder >= 0.5)
+	{
+		roundedRemainder = 1;
+	}
+
+	return ((int)a + roundedRemainder);
+}
