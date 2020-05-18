@@ -16,6 +16,10 @@
 
 #include "main.h"
 
+
+
+#include "d_GridTerrain.h"
+
 DirectX::XMFLOAT4 g_EyePosition(0.0f, 0, -3, 1.0f);
 
 //--------------------------------------------------------------------------------------
@@ -85,6 +89,8 @@ Cube g_CubeTest;
 
 GraphicsCube g_GraphCubeTest;
 Quad g_QuadTest;
+Grid g_GridTest;
+GridTerrain g_TerrainTest;
 
 //delete after creating effects ----------------------------
 ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
@@ -462,6 +468,14 @@ HRESULT InitDevice()
     hr = g_QuadTest.InitMesh(g_pd3dDevice, g_pImmediateContext);
     if (FAILED(hr))
         return hr;
+
+
+    //g_TerrainTest.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
+    g_GridTest.Setup(5, 5);
+    hr = g_GridTest.InitMesh(g_pd3dDevice, g_pImmediateContext, std::vector<float>{0});
+    if (FAILED(hr))
+        return hr;
+
 
     return S_OK;
 }
@@ -921,6 +935,21 @@ void Render()
 
 
 
+    g_GridTest.SetVertexBuffer(g_pImmediateContext);
+    g_GridTest.SetIndexBuffer(g_pImmediateContext);
+
+    g_GridTest.SetTranslation(0.0f, -3.0f, 0.0f);
+    g_GridTest.Update(0.0f);
+    mGO = g_GridTest.GetWorld();
+    cb1.mWorld = XMMatrixTranspose(*mGO);
+    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+    g_GridTest.Draw(g_pImmediateContext);
+
+
+
+
+
     g_GUIManager.Render();
 
 
@@ -1103,6 +1132,8 @@ void RenderRegularCube()
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
     g_CubeTest.Draw(g_pImmediateContext);
+
+
 }
 
 

@@ -13,7 +13,7 @@ GUIManager::GUIManager() :
     _max(1.0f),
     _light{0.0f, 0.0f, 0.0f},
     _camera(0),
-    _currentScene(Scene::NORMAL),
+    _currentScene(Scene::PHYISCS),
     _currentCam(nullptr),
     _lastScene(0)
 {
