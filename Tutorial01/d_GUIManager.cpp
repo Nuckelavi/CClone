@@ -11,7 +11,7 @@ GUIManager::GUIManager() :
     _showCameraMenu(false),
     _showLightMenu(false),
     _max(1.0f),
-    _light{0.0f, 0.0f, 0.0f},
+    //_light{0.0f, 0.0f, 0.0f},
     _camera(0),
     _currentScene(Scene::GRAYSCALE),
     _currentCam(nullptr),
@@ -22,10 +22,13 @@ GUIManager::GUIManager() :
     {
         _effectsActive[i] = false;
     }
+
+    _light = new float[3];
 }
 
 GUIManager::~GUIManager()
 {
+    delete[] _light;
 }
 
 void GUIManager::Setup(HWND hWnd, ID3D11Device* pd3dDevice,
@@ -45,6 +48,9 @@ void GUIManager::Setup(HWND hWnd, ID3D11Device* pd3dDevice,
 
     _cameraManager = &cm;
     _lightManager = &lm;
+
+    DirectX::XMFLOAT4 light = _lightManager->GetLight();
+    _max = F::Max(F::Max(std::abs(light.x), std::abs(light.y)), std::abs(light.z));
 }
 
 void GUIManager::Render()
@@ -122,13 +128,19 @@ void GUIManager::RenderLightMenu()
 {
     DirectX::XMFLOAT4 light = _lightManager->GetLight();
 
-    _max = F::Max(F::Max(std::abs(light.x), std::abs(light.y)), std::abs(light.z));
+    //_max = F::Max(F::Max(std::abs(light.x), std::abs(light.y)), std::abs(light.z));
 
     if (_max != 0.0f)
     {
         _light[0] = light.x / _max;
         _light[1] = light.y / _max;
         _light[2] = light.z / _max;
+    }
+    else
+    {
+        _light[0] = 0.0f;
+        _light[1] = 0.0f;
+        _light[2] = 0.0f;
     }
 
     //render ---------------------------------------

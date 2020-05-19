@@ -117,9 +117,6 @@ ID3D11Buffer* g_pConstantBufferQuad = nullptr;
 //---------------------------------------------------------
 SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
 
-void InitCamera();
-
-
 HRESULT SetupCustomRenderTargets();
 HRESULT SetupQuadShader();
 void RenderQuadEffects();
@@ -602,7 +599,8 @@ HRESULT		InitWorld(int width, int height)
 	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, width / (FLOAT)height, 0.01f, 100.0f);
 
     //initialise camera
-    InitCamera();
+    g_CameraManager.InitCameras(g_viewWidth, g_viewHeight);
+    g_CameraManager.SetCurrentCamera(CameraType::FRONT);
 
 	return S_OK;
 }
@@ -714,7 +712,8 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 //--------------------------------------------------------------------------------------
 void Render()
 {
-    // Update our time
+    //TIME - not really used at the moment 
+    //used to use it to rotate object, might eventually add this functionality back
     static float t = 0.0f;
     if( g_driverType == D3D_DRIVER_TYPE_REFERENCE )
     {
@@ -730,34 +729,17 @@ void Render()
     }
 
 
-    
-
-    // Clear the back buffer
-    //g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, Colors::MidnightBlue );
-
-    // Clear the depth buffer to 1.0 (max depth)
-   // g_pImmediateContext->ClearDepthStencilView( g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
-
-   
-
-
-    //CAMERA STUFFFFFFFFFFFFF
-    //g_CameraManager.SetCurrentCamera(CameraType::FIRST_PERSON);
-    /*g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetView());
-    g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrentCamera().GetProjection());*/
+    //CAMERAS
     g_CameraManager.UpdateCamera();
     g_View = XMLoadFloat4x4(&g_CameraManager.GetCurrConstCamera()->GetView());
     g_Projection = XMLoadFloat4x4(&g_CameraManager.GetCurrConstCamera()->GetProjection());
 
 
-
-
-
-    //tie this in with imgui dude
+    //LIGHTS
     g_LightManager.Update();
 
 
-    //toggle global render state
+    //set global render state
     if (g_GUIManager.GetWireframe())
     {
         g_pImmediateContext->RSSetState(g_wireframeState);
@@ -768,14 +750,12 @@ void Render()
     }
 
 
-	// Update variables for a cube
+    //UPDATE OBJECTS - again, used to be used for rotations
 	g_GameObject.update(t);
-    //g_CubeTest.SetRotation(0, 0.5f, 0);
     g_CubeTest.Update(0.0f);
 
 
-
-    // Update variables for the cube
+    //set constant buffers for default shader
 	XMMATRIX* mGO = g_GameObject.getTransform();
     mGO = g_CubeTest.GetWorld();
 
@@ -803,7 +783,7 @@ void Render()
 	light.QuadraticAttenuation = 1;
 	
 
-	// set up the light
+	//set up the light
     XMFLOAT4 LightPosition(g_LightManager.LightVec());
     //XMFLOAT4 LightPosition(g_LightPosition);//g_EyePosition);
 	light.Position = LightPosition;
@@ -818,6 +798,10 @@ void Render()
 
 
 
+
+    //----------------------------------------------------------
+    //THOU SHALLT BE NUKED 
+    //----------------------------------------------------------
 
     //compute inverse WVP. world, view and proj have been already transposed
     XMMATRIX inv = cb1.mWorld;
@@ -842,10 +826,23 @@ void Render()
     //cbQuad.mPrevVP = XMMatrixMultiply(cb1.mView, cb1.mProjection); 
     g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
 
+    //----------------------------------------------------------
 
+
+
+
+
+    //HERE LIES THE FANCY STUFF --------------------------------------------------------------------------------------
 
     bool doSurfaceDetail = false;
     int effect = 0;
+
+    if ((int)g_GUIManager.GetScene() >= (int)Scene::HEIGHTMAP && (int)g_GUIManager.GetScene() <= (int)Scene::VOXEL)
+    {
+        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
+        RenderRegularCube();
+    }
 
     switch (g_GUIManager.GetScene())
     {
@@ -888,10 +885,6 @@ void Render()
         RenderQuadEffects();
         break;
     case Scene::HEIGHTMAP:
-        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
-        RenderRegularCube();
-
         g_TerrainHM.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
         g_TerrainHM.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
 
@@ -902,10 +895,6 @@ void Render()
         g_TerrainHM.Draw(g_pImmediateContext);
         break;
     case Scene::FAULTFORM:
-        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
-        RenderRegularCube();
-
         g_TerrainFF.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
         g_TerrainFF.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
 
@@ -916,10 +905,6 @@ void Render()
         g_TerrainFF.Draw(g_pImmediateContext);
         break;
     case Scene::DIAMONDSQUARE:
-        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
-        RenderRegularCube();
-
         g_TerrainDS.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
         g_TerrainDS.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
 
@@ -930,10 +915,6 @@ void Render()
         g_TerrainDS.Draw(g_pImmediateContext);
         break;
     case Scene::CIRCLEHILL:
-        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0);
-        RenderRegularCube();
-
         g_TerrainCH.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
         g_TerrainCH.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
 
@@ -944,9 +925,6 @@ void Render()
         g_TerrainCH.Draw(g_pImmediateContext);
         break;
     case Scene::VOXEL:
-        redPlasticMaterial.Material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-        g_pImmediateContext->UpdateSubresource(g_pMaterialConstantBuffer, 0, nullptr, &redPlasticMaterial, 0, 0); 
-        RenderRegularCube();
         break;
     }
 
@@ -969,88 +947,46 @@ void Render()
 
         g_GraphCubeTest.Draw(g_pImmediateContext);
     }
+    
+    //----------------------------------------------------------------------------------------------------------------
 
 
-    //grid render test
-   /* g_GridTest.SetVertexBuffer(g_pImmediateContext);
-    g_GridTest.SetIndexBuffer(g_pImmediateContext);
-
-    g_GridTest.SetTranslation(0.0f, -3.0f, 0.0f);
-    g_GridTest.Update(0.0f);
-    mGO = g_GridTest.GetWorld();
-    cb1.mWorld = XMMatrixTranspose(*mGO);
-    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
-    g_GridTest.Draw(g_pImmediateContext);*/
-
-
-    //terrain render test
-    /*g_TerrainHM.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
-    g_TerrainHM.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
-
-    mGO = g_TerrainHM.GetTerrainGrid()->GetWorld();
-    cb1.mWorld = XMMatrixTranspose(*mGO);
-    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
-    g_TerrainHM.Draw(g_pImmediateContext);*/
-
-
-
-
-
-
+    //UPDATE GUI
     g_GUIManager.Render();
 
-
-    // Present our back buffer to our front buffer
+    
     g_pSwapChain->Present( 0, 0 );
 }
-
-
-void InitCamera()
-{
-    g_CameraManager.InitCameras(g_viewWidth, g_viewHeight);
-    g_CameraManager.SetCurrentCamera(CameraType::FRONT);
-
-}
-
 
 void RenderRegularCube()
 {
     g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
-    // Clear the back buffer
     g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
-
-    // Clear the depth buffer to 1.0 (max depth)
     g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
 
     g_CubeTest.SetVertexBuffer(g_pImmediateContext);
     g_CubeTest.SetIndexBuffer(g_pImmediateContext);
 
-    //set constant buffers
     g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
     g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
     g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
     g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
 
-    //set effect's vertex and pixel shaders
     g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
     g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
     g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
 
-    //set textures and sampler
     ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
     g_CubeTest.Draw(g_pImmediateContext);
-
-
 }
 
 
-
+//----------------------------------------------------------
+//THOU SHALLT BE NUKED 
+//----------------------------------------------------------
 HRESULT SetupCustomRenderTargets()
 {
     HRESULT hr;
@@ -1278,3 +1214,4 @@ void SetupTerrain()
     g_TerrainCH.Update(0.0f);
 
 }
+//----------------------------------------------------------

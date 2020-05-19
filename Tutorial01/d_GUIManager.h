@@ -39,7 +39,7 @@ private:
     bool _showLightMenu;
 
     float _max;
-    float _light[3];
+    float* _light;
 
     int _camera;
     Scene _currentScene;
