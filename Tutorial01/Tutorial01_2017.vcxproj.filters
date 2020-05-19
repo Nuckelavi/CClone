@@ -68,6 +68,9 @@
     <ClCompile Include="d_Block.cpp">
       <Filter>Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="d_SurfaceDetailEffect.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -90,6 +93,9 @@
     </Filter>
     <Filter Include="Terrain">
       <UniqueIdentifier>{5c9706e0-64d1-4963-920e-2bdf421a12ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{2764bddc-8ee3-4cb7-a029-561de8bb9f27}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="d_Chunk.h">
       <Filter>Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="d_SurfaceDetailEffect.h">
+      <Filter>Effects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -363,6 +363,7 @@
     <ClInclude Include="d_GUIManager.h" />
     <ClInclude Include="d_HeightmapGen.h" />
     <ClInclude Include="d_LightManager.h" />
+    <ClInclude Include="d_SurfaceDetailEffect.h" />
     <ClInclude Include="d_TextureManager.h" />
     <ClInclude Include="d_Utilities.h" />
     <ClInclude Include="Geometry\d_Cube.h" />
@@ -398,6 +399,7 @@
     <ClCompile Include="d_GUIManager.cpp" />
     <ClCompile Include="d_HeightmapGen.cpp" />
     <ClCompile Include="d_LightManager.cpp" />
+    <ClCompile Include="d_SurfaceDetailEffect.cpp" />
     <ClCompile Include="d_TextureManager.cpp" />
     <ClCompile Include="d_Utilities.cpp" />
     <ClCompile Include="Geometry\d_Cube.cpp" />
