@@ -6,20 +6,24 @@
 #include <vector>
 
 #include "..\structures.h"
+#include "..\d_Utilities.h"
 
-struct QuadVertex
-{
-	DirectX::XMFLOAT4 Pos;
-	DirectX::XMFLOAT2 TexCoord;
-};
+
 
 class Quad
 {
 private:
+	/*static constexpr int NUM_VERTICES = 4;
+	static constexpr int NUM_INDICES = 6;*/
+	
+
+
 	DirectX::XMMATRIX _world;
 	DirectX::XMFLOAT3 _position;
+	float pad;
 
 	static constexpr int NUM_VERTICES = 4;
+	static constexpr int NUM_INDICES = 6;
 	
 
 	ID3D11Buffer* _pVertexBuffer;
@@ -28,7 +32,7 @@ private:
 	std::vector<QuadVertex> _vertices;
 	std::vector<UINT> _indices;
 	
-	static constexpr int NUM_INDICES = 6;
+	
 
 public:
 	Quad();

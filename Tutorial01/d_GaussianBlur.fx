@@ -12,16 +12,16 @@
 cbuffer ConstantBuffer : register( b0 )
 {
 	matrix mInvWVP;
-	matrix mPrevVP;
+	//matrix mPrevVP;
 	matrix mInvProj;
 
 	float2 vScreenSize;
-	int blur;
-	int iEffectID;
+	int nBlur;
+	int nEffectID;
 
-	float fDepth;
-	int iPassIndex;
-	float2 pad0;
+	/*float fDepth;
+	int nPassIndex;
+	float2 pad0;*/
 }
 
 Texture2D txDiffuse : register(t0);

@@ -91,7 +91,7 @@ Cube g_CubeTest;
 //Camera g_CameraTest;
 
 GraphicsCube g_GraphCubeTest;
-Quad g_QuadTest;
+Quad* g_QuadTest;
 //Grid g_GridTest;
 //GridTerrain g_TerrainTest;
 GridTerrain g_TerrainHM;
@@ -473,7 +473,8 @@ HRESULT InitDevice()
     if (FAILED(hr))
         return hr;
 
-    hr = g_QuadTest.InitMesh(g_pd3dDevice, g_pImmediateContext);
+    g_QuadTest = new Quad();
+    hr = g_QuadTest->InitMesh(g_pd3dDevice, g_pImmediateContext);
     if (FAILED(hr))
         return hr;
 
@@ -671,7 +672,8 @@ void CleanupDevice()
     if( g_pImmediateContext ) g_pImmediateContext->ClearState();
 
 
-    
+    delete g_QuadTest;
+    g_QuadTest = nullptr;
 
     if( g_pConstantBuffer ) g_pConstantBuffer->Release();
     if( g_pVertexBuffer ) g_pVertexBuffer->Release();
@@ -909,11 +911,11 @@ void Render()
     cbQuad.mInvWVP = inv;
     cbQuad.mInvProj = invProj;
     cbQuad.vScreenSize = XMFLOAT2((float)g_viewWidth, (float)g_viewHeight);
-    cbQuad.blur = 1;
-    cbQuad.iEffectID = 0;
-    cbQuad.fDepth = 0.0f;
-    cbQuad.iPassIndex = 0;
-    cbQuad.mPrevVP = XMMatrixMultiply(cb1.mView, cb1.mProjection); 
+    cbQuad.nBlur = 1;
+    cbQuad.nEffectID = 0;
+    //cbQuad.fDepth = 0.0f;
+    //cbQuad.nPassIndex = 0;
+    //cbQuad.mPrevVP = XMMatrixMultiply(cb1.mView, cb1.mProjection); 
     g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
 
 
@@ -1335,6 +1337,7 @@ HRESULT SetupQuadShader()
 
     //set constant buffers
     D3D11_BUFFER_DESC bd = {};
+    ZeroMemory(&bd, sizeof(bd));
     bd.Usage = D3D11_USAGE_DEFAULT;
     bd.ByteWidth = sizeof(ConstantBufferQuad);
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -1360,6 +1363,8 @@ void RenderQuadEffects()
     g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
     //g_pImmediateContext->ClearDepthStencilView(g_depthBlurDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
 
     g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
 
@@ -1376,14 +1381,14 @@ void RenderQuadEffects()
     
 
     //for cube
-    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
+   /* ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
-    if(tempsrv) tempsrv->Release();
+    if(tempsrv) tempsrv->Release();*/
     //for graphics cube
     //g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
 
 
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+    
 
     g_CubeTest.Draw(g_pImmediateContext);
 
@@ -1397,12 +1402,11 @@ void RenderQuadEffects()
 
     //bind shader
     g_pImmediateContext->IASetInputLayout(g_pVertexLayoutQuad);
-
     g_pImmediateContext->VSSetShader(g_pVertexShaderQuad, nullptr, 0);
     g_pImmediateContext->PSSetShader(g_pPixelShaderQuad, nullptr, 0);
 
-    g_QuadTest.SetVertexBuffer(g_pImmediateContext);
-    g_QuadTest.SetIndexBuffer(g_pImmediateContext);
+    g_QuadTest->SetVertexBuffer(g_pImmediateContext);
+    g_QuadTest->SetIndexBuffer(g_pImmediateContext);
 
     g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferQuad);
     g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferQuad);
@@ -1412,7 +1416,7 @@ void RenderQuadEffects()
 
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
     
-    g_QuadTest.Draw(g_pImmediateContext);
+    g_QuadTest->Draw(g_pImmediateContext);
 
     ID3D11ShaderResourceView* const pSRV[1] = { NULL };
     g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);

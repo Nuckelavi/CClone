@@ -2,6 +2,12 @@
 
 #include <DirectXMath.h>
 
+struct QuadVertex
+{
+	DirectX::XMFLOAT4 Pos;
+	DirectX::XMFLOAT2 TexCoord;
+};
+
 namespace XMF3
 {
 	DirectX::XMFLOAT3 cross(DirectX::XMFLOAT3& a, DirectX::XMFLOAT3& b);
