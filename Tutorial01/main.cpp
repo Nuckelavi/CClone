@@ -98,12 +98,6 @@ Quad* g_QuadTest;
 //Grid g_GridTest;
 
 //terrains
-//GridTerrain g_TerrainTest;
-//HAVE AN ARRAY INSTEAD OF INDIVIDUAL VARIABLES
-//GridTerrain g_TerrainHM;
-//GridTerrain g_TerrainFF;
-//GridTerrain g_TerrainDS;
-//GridTerrain g_TerrainCH;
 GridTerrain g_GridTerrains[4];
 
 SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
@@ -373,10 +367,6 @@ HRESULT InitDevice()
         return hr;
 
     g_pImmediateContext->OMSetRenderTargets( 1, &g_pRenderTargetView, g_pDepthStencilView );
-
-
-    
-    //SetupCustomRenderTargets();
 
 
 
@@ -835,54 +825,22 @@ void Render()
         break;
     case Scene::HEIGHTMAP:
         terrainIndex = 0;
-        /*g_TerrainHM.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
-        g_TerrainHM.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
-
-        mGO = g_TerrainHM.GetTerrainGrid()->GetWorld();
-        cb1.mWorld = XMMatrixTranspose(*mGO);
-        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
-        g_TerrainHM.Draw(g_pImmediateContext);*/
         break;
     case Scene::FAULTFORM:
         terrainIndex = 1;
-       /* g_TerrainFF.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
-        g_TerrainFF.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
-
-        mGO = g_TerrainFF.GetTerrainGrid()->GetWorld();
-        cb1.mWorld = XMMatrixTranspose(*mGO);
-        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
-        g_TerrainFF.Draw(g_pImmediateContext);*/
         break;
     case Scene::DIAMONDSQUARE:
         terrainIndex = 2;
-        /*g_TerrainDS.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
-        g_TerrainDS.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
-
-        mGO = g_TerrainDS.GetTerrainGrid()->GetWorld();
-        cb1.mWorld = XMMatrixTranspose(*mGO);
-        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
-        g_TerrainDS.Draw(g_pImmediateContext);*/
         break;
     case Scene::CIRCLEHILL:
         terrainIndex = 3;
-        /*g_TerrainCH.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
-        g_TerrainCH.GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
-
-        mGO = g_TerrainCH.GetTerrainGrid()->GetWorld();
-        cb1.mWorld = XMMatrixTranspose(*mGO);
-        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
-
-        g_TerrainCH.Draw(g_pImmediateContext);*/
         break;
     case Scene::VOXEL:
         break;
     }
 
 
-    if (terrainIndex >= 0)
+    if (terrainIndex >= 0 && terrainIndex < 4)
     {
         g_GridTerrains[terrainIndex].GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
         g_GridTerrains[terrainIndex].GetTerrainGrid()->SetIndexBuffer(g_pImmediateContext);
@@ -994,50 +952,6 @@ void RendSS(int effect)
 
 void SetupTerrain()
 {
-    ////FROM HEIGHTMAP
-    //g_TerrainHM.SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
-    //g_TerrainHM.GetHmGen().LoadHeightmap(g_TerrainHM.GetHeightValues(),
-    //    g_TerrainHM.GetHMStruct());
-    //g_TerrainHM.SetGridRatio(0.3f);
-    //g_TerrainHM.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f, false, true, 1);
-
-    //g_TerrainHM.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainHM.GetHMScale() / 2.0f, 0.0f);
-    //g_TerrainHM.Update(0.0f);
-
-
-    ////FAULT FORMATION
-    //g_TerrainFF.SetHeightmap(154, 154, "");
-    //g_TerrainFF.GetHmGen().FaultFormation(g_TerrainFF.GetHeightValues(),
-    //    g_TerrainFF.GetHMStruct().width, 200, true);
-    //g_TerrainFF.SetGridRatio(1.0f);
-    //g_TerrainFF.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f);
-
-    //g_TerrainFF.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainFF.GetHMScale() * 0.75f, 0.0f);
-    //g_TerrainFF.Update(0.0f);
-
-
-    ////DIAMOND SQUARE
-    //int texpow = 7;
-    //int texDim = (int)std::pow(2, 7) + 1;
-    //g_TerrainDS.SetHeightmap(texDim, texDim, "");
-    //g_TerrainDS.GetHmGen().DiamondSquare(g_TerrainDS.GetHeightValues(), texpow, g_TerrainDS.GetHMStruct().width);
-    //g_TerrainDS.SetGridRatio(1.0f);
-    //g_TerrainDS.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f, false, true, 4);
-
-    //g_TerrainDS.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainDS.GetHMScale() * 0.5f, 0.0f);
-    //g_TerrainDS.Update(0.0f);
-
-
-    ////CIRCLE HILL
-    //g_TerrainCH.SetHeightmap(154, 154, "");
-    //g_TerrainCH.GetHmGen().CircleHill(g_TerrainCH.GetHeightValues(), g_TerrainCH.GetHMStruct().width,
-    //    g_TerrainCH.GetHMStruct().height, 200, 2.0f, 20.0f);
-    //g_TerrainCH.SetGridRatio(1.0f);
-    //g_TerrainCH.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 20.0f);
-
-    //g_TerrainCH.GetTerrainGrid()->SetTranslation(0.0f, -g_TerrainCH.GetHMScale() * 0.5f, 0.0f);
-    //g_TerrainCH.Update(0.0f);
-
     //FROM HEIGHTMAP
     g_GridTerrains[0].SetHeightmap(513, 513, "Resources\\coastMountain513.raw");
     g_GridTerrains[0].GetHmGen().LoadHeightmap(g_GridTerrains[0].GetHeightValues(),
