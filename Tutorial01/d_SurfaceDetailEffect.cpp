@@ -12,7 +12,7 @@ SurfaceDetailFX::SurfaceDetailFX() :
     _pMaterialBuffer(nullptr),
     _pSamplerLinear(nullptr)
 {
-    _pTextureRVs = new ID3D11ShaderResourceView* [3];
+    _pTextureRVs = new ID3D11ShaderResourceView* [TEX_NUM];
 }
 
 SurfaceDetailFX::~SurfaceDetailFX()
@@ -25,7 +25,7 @@ SurfaceDetailFX::~SurfaceDetailFX()
     if (_pMaterialBuffer) _pMaterialBuffer->Release();
     if (_pSamplerLinear) _pSamplerLinear->Release();
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < TEX_NUM; ++i)
     {
         if (_pTextureRVs[i]) _pTextureRVs[i]->Release();
     }
@@ -167,7 +167,7 @@ HRESULT SurfaceDetailFX::CreateTextures(ID3D11Device* pd3dDevice)
         //L"Resources\\toybox_DISP.dds"
     };
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < TEX_NUM; ++i)
     {
         hr = CreateDDSTextureFromFile(pd3dDevice, texFilePaths[i], nullptr, &_pTextureRVs[texCount]);//&g_pTextureRV);
         if (FAILED(hr))
@@ -227,6 +227,6 @@ void SurfaceDetailFX::Render(ID3D11DeviceContext* pContext)
     pContext->VSSetShader(_pVertexShader, nullptr, 0);
     pContext->PSSetShader(_pPixelShader, nullptr, 0);
 
-    pContext->PSSetShaderResources(0, 3, _pTextureRVs);
+    pContext->PSSetShaderResources(0, TEX_NUM, _pTextureRVs);
     pContext->PSSetSamplers(0, 1, &_pSamplerLinear);
 }

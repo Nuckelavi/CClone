@@ -14,7 +14,7 @@ private:
 	ID3D11Buffer* _pMaterialBuffer;
 	ID3D11SamplerState* _pSamplerLinear;
 
-	//const int TEX_NUM = 3;
+	static constexpr int TEX_NUM = 3;
 	ID3D11ShaderResourceView** _pTextureRVs;
 
 
