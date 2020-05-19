@@ -85,47 +85,32 @@ DrawableGameObject		g_GameObject;
 ID3D11RasterizerState* g_wireframeState;
 ID3D11RasterizerState* g_solidState;
 
+//Camera g_CameraTest;
 CameraManager g_CameraManager;
 LightManager g_LightManager = LightManager(g_EyePosition);
 TextureManager g_TextureManager;
 GUIManager g_GUIManager;
-Cube g_CubeTest;
-//Camera g_CameraTest;
 
+//geometry
+Cube g_CubeTest;
 GraphicsCube g_GraphCubeTest;
 Quad* g_QuadTest;
 //Grid g_GridTest;
+
+//terrains
 //GridTerrain g_TerrainTest;
 GridTerrain g_TerrainHM;
 GridTerrain g_TerrainFF;
 GridTerrain g_TerrainDS;
 GridTerrain g_TerrainCH;
 
-//delete after creating effects ----------------------------
-
-
-
-ID3D11Texture2D* g_renderToTexture = nullptr;
-ID3D11RenderTargetView* g_customRenderTargetView = nullptr;
-ID3D11ShaderResourceView* g_customShaderResourceView = nullptr;
-
-ID3D11VertexShader* g_pVertexShaderQuad = nullptr;
-ID3D11PixelShader* g_pPixelShaderQuad = nullptr;
-ID3D11InputLayout* g_pVertexLayoutQuad = nullptr;
-
-ID3D11Buffer* g_pConstantBufferQuad = nullptr;
-
-//---------------------------------------------------------
 SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
 SSEffects* g_pSimpleSSFX = new SSEffects();
 
-HRESULT SetupCustomRenderTargets();
-HRESULT SetupQuadShader();
-void RenderQuadEffects();
 
-void RendSS(int effect);
-
+//functions
 void RenderRegularCube();
+void RendSS(int effect);
 void SetupTerrain();
 
 
@@ -389,7 +374,7 @@ HRESULT InitDevice()
 
 
     
-    SetupCustomRenderTargets();
+    //SetupCustomRenderTargets();
 
 
 
@@ -517,7 +502,7 @@ HRESULT		InitMesh()
     g_pSimpleSSFX->SetupShader(g_pd3dDevice);
     
 
-    SetupQuadShader();
+    //SetupQuadShader();
 
 
 
@@ -623,6 +608,30 @@ void CleanupDevice()
     delete g_QuadTest;
     g_QuadTest = nullptr;
 
+    if (g_pSurfaceShader != nullptr)
+    {
+        delete g_pSurfaceShader;
+        g_pSurfaceShader = nullptr;
+    }
+
+    if (g_pSimpleSSFX != nullptr)
+    {
+        delete g_pSimpleSSFX;
+        g_pSimpleSSFX = nullptr;
+    }
+
+    g_GUIManager.Shutdown();
+
+    if (g_solidState) g_solidState->Release();
+    if (g_wireframeState) g_wireframeState->Release();
+
+    if (g_pMaterialConstantBuffer) g_pMaterialConstantBuffer->Release();
+    if (g_pLightConstantBuffer) g_pLightConstantBuffer->Release();
+    if (g_pTextureRV) g_pTextureRV->Release();
+    if (g_pNormalTextureRV) g_pNormalTextureRV->Release();
+    if (g_pSamplerLinear) g_pSamplerLinear->Release();
+    if (g_pSamplerNormal) g_pSamplerNormal->Release();
+
     if( g_pConstantBuffer ) g_pConstantBuffer->Release();
     if( g_pVertexBuffer ) g_pVertexBuffer->Release();
     if( g_pIndexBuffer ) g_pIndexBuffer->Release();
@@ -638,42 +647,6 @@ void CleanupDevice()
     if( g_pImmediateContext ) g_pImmediateContext->Release();
     if( g_pd3dDevice1 ) g_pd3dDevice1->Release();
     if( g_pd3dDevice ) g_pd3dDevice->Release();
-
-
-
-    if (g_solidState) g_solidState->Release();
-    if (g_wireframeState) g_wireframeState->Release();
-
-    if (g_pVertexLayoutQuad && g_pVertexLayoutQuad != nullptr) g_pVertexLayoutQuad->Release();
-    if (g_pVertexShaderQuad && g_pVertexShaderQuad != nullptr) g_pVertexShaderQuad->Release();
-    if (g_pPixelShaderQuad) g_pPixelShaderQuad->Release();
-    if (g_pConstantBufferQuad) g_pConstantBufferQuad->Release();
-    if (g_renderToTexture) g_renderToTexture->Release();
-    if (g_customRenderTargetView) g_customRenderTargetView->Release();
-    if (g_customShaderResourceView) g_customShaderResourceView->Release();
-
-
-    if (g_pMaterialConstantBuffer) g_pMaterialConstantBuffer->Release();
-    if (g_pLightConstantBuffer) g_pLightConstantBuffer->Release();
-    if (g_pTextureRV) g_pTextureRV->Release();
-    if (g_pNormalTextureRV) g_pNormalTextureRV->Release();
-    if (g_pSamplerLinear) g_pSamplerLinear->Release();
-    if (g_pSamplerNormal) g_pSamplerNormal->Release();
-    
-
-    if (g_pSurfaceShader != nullptr)
-    {
-        delete g_pSurfaceShader;
-        g_pSurfaceShader = nullptr;
-    }
-
-    if (g_pSimpleSSFX != nullptr)
-    {
-        delete g_pSimpleSSFX;
-        g_pSimpleSSFX = nullptr;
-    }
-
-    g_GUIManager.Shutdown();
 
 
     
@@ -809,31 +782,10 @@ void Render()
 	g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer, 0, nullptr, &lightProperties, 0, 0);
 
 
-
-
-    //----------------------------------------------------------
-    //THOU SHALLT BE NUKED 
-    //----------------------------------------------------------
-
-
-    ConstantBufferQuad cbQuad;
-    cbQuad.vScreenSize = XMFLOAT2((float)g_viewWidth, (float)g_viewHeight);
-    cbQuad.nBlur = 1;
-    cbQuad.nEffectID = 0;
-    g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
-
-    //----------------------------------------------------------
-
-
-
-
-
     //HERE LIES THE FANCY STUFF --------------------------------------------------------------------------------------
 
     bool doSurfaceDetail = false;
     int effect = 0;
-
-    bool doSSFX = false;
 
     if ((int)g_GUIManager.GetScene() >= (int)Scene::HEIGHTMAP && (int)g_GUIManager.GetScene() <= (int)Scene::VOXEL)
     {
@@ -868,21 +820,15 @@ void Render()
         break;
     case Scene::GRAYSCALE:
         RendSS(0);
-        //RenderQuadEffects();
         break;
     case Scene::BOXBLUR:
         RendSS(1);
-        /*cbQuad.nEffectID = 1;
-        g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
-        RenderQuadEffects();*/
         break;
     case Scene::GAUSSIAN:
-        cbQuad.nEffectID = 2;
-        g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
-        RenderQuadEffects();
+        RendSS(0);
         break;
     case Scene::DOFBLUR:
-        RenderQuadEffects();
+        RendSS(0);
         break;
     case Scene::HEIGHTMAP:
         g_TerrainHM.GetTerrainGrid()->SetVertexBuffer(g_pImmediateContext);
@@ -982,129 +928,16 @@ void RenderRegularCube()
     g_CubeTest.Draw(g_pImmediateContext);
 }
 
-
-//----------------------------------------------------------
-//THOU SHALLT BE NUKED 
-//----------------------------------------------------------
-HRESULT SetupCustomRenderTargets()
-{
-    HRESULT hr;
-
-    //Create render to target
-    D3D11_TEXTURE2D_DESC renderToTexDesc = {};
-    ZeroMemory(&renderToTexDesc, sizeof(renderToTexDesc));
-    renderToTexDesc.Width = 640; //g_viewWidth;
-    renderToTexDesc.Height = 480;//g_viewHeight;
-    renderToTexDesc.MipLevels = 1;
-    renderToTexDesc.ArraySize = 1;
-    renderToTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    renderToTexDesc.SampleDesc.Count = 1;
-    renderToTexDesc.SampleDesc.Quality = 0;
-    renderToTexDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-    renderToTexDesc.Usage = D3D11_USAGE_DEFAULT;
-    renderToTexDesc.CPUAccessFlags = 0;
-    renderToTexDesc.MiscFlags = 0;
-    hr = g_pd3dDevice->CreateTexture2D(&renderToTexDesc, nullptr, &g_renderToTexture);
-    if (FAILED(hr))
-        return hr;
-
-    D3D11_RENDER_TARGET_VIEW_DESC customRtvDesc;
-    customRtvDesc.Format = renderToTexDesc.Format;
-    customRtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-    customRtvDesc.Texture2D.MipSlice = 0;
-    hr = g_pd3dDevice->CreateRenderTargetView(g_renderToTexture, &customRtvDesc, &g_customRenderTargetView);
-    if (FAILED(hr))
-        return hr;
-
-    D3D11_SHADER_RESOURCE_VIEW_DESC customSrvDesc;
-    customSrvDesc.Format = renderToTexDesc.Format;
-    customSrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    customSrvDesc.Texture2D.MostDetailedMip = 0;
-    customSrvDesc.Texture2D.MipLevels = 1;
-    hr = g_pd3dDevice->CreateShaderResourceView(g_renderToTexture, &customSrvDesc, &g_customShaderResourceView);
-    if (FAILED(hr))
-        return hr;
-
-    g_pImmediateContext->OMSetRenderTargets(1, &g_customRenderTargetView, g_pDepthStencilView);
-
-    return hr;
-}
-
-HRESULT SetupQuadShader()
-{
-    HRESULT hr; 
-
-    //create quad VS shader
-    ID3DBlob* pVSBlob = nullptr;
-    hr = DX11::CompileShaderFromFile(L"d_GaussianBlur.fx", "VS", "vs_4_0", &pVSBlob);
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr,
-            L"The d_quadShader.fx file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
-        return hr;
-    }
-
-    hr = g_pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &g_pVertexShaderQuad);
-    if (FAILED(hr))
-    {
-        pVSBlob->Release();
-        return hr;
-    }
-
-    D3D11_INPUT_ELEMENT_DESC layout2[]
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        //{ "DEPTH", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-    };
-    UINT numElements2 = ARRAYSIZE(layout2);
-
-    hr = g_pd3dDevice->CreateInputLayout(layout2, numElements2, pVSBlob->GetBufferPointer(),
-        pVSBlob->GetBufferSize(), &g_pVertexLayoutQuad);
-    if (FAILED(hr))
-        return hr;
-
-
-    //set up quad pixel shader
-    ID3DBlob* pPSBlob = nullptr;
-    hr = DX11::CompileShaderFromFile(L"d_GaussianBlur.fx", "PS", "ps_4_0", &pPSBlob);
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr, L"The d_quadShader.fx file cannot be compiled. Pixel shader failed.", L"Error", MB_OK);
-        return hr;
-    }
-
-    hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &g_pPixelShaderQuad);
-    pPSBlob->Release();
-    if (FAILED(hr))
-        return hr;
-
-    //set constant buffers
-    D3D11_BUFFER_DESC bd = {};
-    ZeroMemory(&bd, sizeof(bd));
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(ConstantBufferQuad);
-    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bd.CPUAccessFlags = 0;
-    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pConstantBufferQuad);
-    if (FAILED(hr))
-        return hr;
-
-    return hr;
-}
-
 void RendSS(int effect)
 {
     g_pImmediateContext->OMSetRenderTargets(1, g_pSimpleSSFX->ppGetCustomRTV(), g_pDepthStencilView);
-
     g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::Coral);
     g_pImmediateContext->ClearRenderTargetView(g_pSimpleSSFX->GetCustomRTV(), Colors::SeaGreen);
     g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    
+
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
     g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-
     g_CubeTest.SetVertexBuffer(g_pImmediateContext);
     g_CubeTest.SetIndexBuffer(g_pImmediateContext);
 
@@ -1122,15 +955,13 @@ void RendSS(int effect)
 
     g_CubeTest.Draw(g_pImmediateContext);
 
-
-
     //RTT------------------
-    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);//nullptr);
+    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, nullptr);
 
     g_QuadTest->SetVertexBuffer(g_pImmediateContext);
     g_QuadTest->SetIndexBuffer(g_pImmediateContext);
 
-    //render via shader
+    //call shader
     g_pSimpleSSFX->SetConstantBuffer(g_pImmediateContext, 640, 480, effect);
     g_pSimpleSSFX->Render(g_pd3dDevice, g_pImmediateContext);
 
@@ -1139,79 +970,6 @@ void RendSS(int effect)
     ID3D11ShaderResourceView* const pSRV[1] = { NULL };
     g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
 
-}
-
-void RenderQuadEffects()
-{
-    /*ID3D11RenderTargetView* nullRTV = nullptr;
-    g_pImmediateContext->OMSetRenderTargets(1, &nullRTV, nullptr);*/
-
-
-    g_pImmediateContext->OMSetRenderTargets(1, &g_customRenderTargetView, g_pDepthStencilView);
-
-    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::Coral);
-    g_pImmediateContext->ClearRenderTargetView(g_customRenderTargetView, Colors::SeaGreen);
-    //g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    //g_pImmediateContext->ClearDepthStencilView(g_depthBlurDsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-
-
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-
-    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
-    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
-
-    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
-    
-
-    //for cube
-    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
-    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
-    //if(tempsrv) tempsrv->Release();
-    //for graphics cube
-    //g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
-
-
-    
-
-    g_CubeTest.Draw(g_pImmediateContext);
-
-    
-
-    //RTT------------------
-    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);//nullptr);
-
-    
-
-
-    //bind shader
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutQuad);
-    g_pImmediateContext->VSSetShader(g_pVertexShaderQuad, nullptr, 0);
-    g_pImmediateContext->PSSetShader(g_pPixelShaderQuad, nullptr, 0);
-
-    g_QuadTest->SetVertexBuffer(g_pImmediateContext);
-    g_QuadTest->SetIndexBuffer(g_pImmediateContext);
-
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferQuad);
-    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferQuad);
-
-    g_pd3dDevice->CreateShaderResourceView(g_renderToTexture, nullptr, &g_customShaderResourceView);
-    g_pImmediateContext->PSSetShaderResources(0, 1, &g_customShaderResourceView);
-
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-    
-    g_QuadTest->Draw(g_pImmediateContext);
-
-    ID3D11ShaderResourceView* const pSRV[1] = { NULL };
-    g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
 }
 
 void SetupTerrain()
@@ -1229,7 +987,7 @@ void SetupTerrain()
 
     //FAULT FORMATION
     g_TerrainFF.SetHeightmap(154, 154, "");
-    g_TerrainFF.GetHmGen().FaultFormation(g_TerrainFF.GetHeightValues(), 
+    g_TerrainFF.GetHmGen().FaultFormation(g_TerrainFF.GetHeightValues(),
         g_TerrainFF.GetHMStruct().width, 200, true);
     g_TerrainFF.SetGridRatio(1.0f);
     g_TerrainFF.SetupTerrain(g_pd3dDevice, g_pImmediateContext, 40.0f);
@@ -1261,4 +1019,3 @@ void SetupTerrain()
     g_TerrainCH.Update(0.0f);
 
 }
-//----------------------------------------------------------
