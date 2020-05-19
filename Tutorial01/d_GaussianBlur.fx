@@ -89,11 +89,11 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	float4 texColor = {1, 1, 1, 1};
 	texColor = txDiffuse.Sample(samLinear, IN.Tex);
 
-	if (nEffectID == 0)
+	if (nBlur == 0)
 	{
 		return GaussianBlur(IN.Tex, true);
 	}
-	else
+	if(nBlur == 1)
 	{
 		return GaussianBlur(IN.Tex, false);
 	}

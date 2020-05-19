@@ -1,9 +1,7 @@
 #include "d_GaussianBlurEffect.h"
+#include <DirectXColors.h>
 
 GaussianBlurFX::GaussianBlurFX() : 
-    _pVertexLayout(nullptr),
-    _pVertexShader(nullptr),
-    _pPixelShader(nullptr),
     _pConstantBuffer(nullptr)
 {
     for (int i = 0; i < RTTS; ++i)
@@ -16,9 +14,6 @@ GaussianBlurFX::GaussianBlurFX() :
 
 GaussianBlurFX::~GaussianBlurFX()
 {
-    if (_pVertexShader) _pVertexShader->Release();
-    if (_pPixelShader) _pPixelShader->Release();
-    if (_pVertexLayout) _pVertexLayout->Release();
     if (_pConstantBuffer) _pConstantBuffer->Release();
 
     for (int i = 0; i < RTTS; ++i)
@@ -27,25 +22,6 @@ GaussianBlurFX::~GaussianBlurFX()
         if (_pCustomRTV[i]) _pCustomRTV[i]->Release();
         if (_pCustomSRV[i]) _pCustomSRV[i]->Release();
     }
-}
-
-HRESULT GaussianBlurFX::SetupShader(ID3D11Device* pd3dDevice)
-{
-    HRESULT hr;
-
-    hr = CreateShaders(pd3dDevice);
-    if (FAILED(hr))
-        return hr;
-
-    hr = CreateBuffers(pd3dDevice);
-    if (FAILED(hr))
-        return hr;
-
-    hr = CreateTextures(pd3dDevice);
-    if (FAILED(hr))
-        return hr;
-
-    return hr;
 }
 
 HRESULT GaussianBlurFX::CreateShaders(ID3D11Device* pd3dDevice)
@@ -171,17 +147,48 @@ HRESULT GaussianBlurFX::CreateTextures(ID3D11Device* pd3dDevice)
     return hr;
 }
 
-void GaussianBlurFX::SetConstantBuffer(ID3D11DeviceContext* pContext, int screenW, int screenH, int effect)
+void GaussianBlurFX::ClearRenderTargets(ID3D11DeviceContext* pContext)
+{
+    for (int i = 0; i < RTTS; ++i)
+    {
+        pContext->ClearRenderTargetView(_pCustomRTV[i], DirectX::Colors::SeaGreen);
+    }
+}
+
+void GaussianBlurFX::SetConstantBuffer(ID3D11DeviceContext* pContext, int screenW, int screenH, int blur)
 {
     ConstantBufferQuad cbQuad;
     cbQuad.vScreenSize = DirectX::XMFLOAT2((float)screenW, (float)screenH);
-    cbQuad.nEffectID = effect;
-    cbQuad.nBlur = 0;
+    cbQuad.nEffectID = 0;
+    cbQuad.nBlur = blur;
     pContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cbQuad, 0, 0);
 }
 
-void GaussianBlurFX::Render(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext)
+void GaussianBlurFX::Render(ID3D11Device* pd3dDevice, 
+    ID3D11DeviceContext* pContext, int srvIndex)
 {
+    if (srvIndex >= RTTS)
+        return;
+
+    pContext->IASetInputLayout(_pVertexLayout);
+    pContext->VSSetShader(_pVertexShader, nullptr, 0);
+    pContext->PSSetShader(_pPixelShader, nullptr, 0);
+
+    pContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
+    pContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
+
+    pd3dDevice->CreateShaderResourceView(_pCustomRenderTarget[srvIndex], nullptr, &_pCustomSRV[srvIndex]);
+    pContext->PSSetShaderResources(0, 1, &_pCustomSRV[srvIndex]);
+}
+
+ID3D11RenderTargetView* GaussianBlurFX::GetCustomRTV(int index)
+{
+    if (index < RTTS)
+    {
+        return _pCustomRTV[index];
+    }
+
+    return nullptr;
 }
 
 
