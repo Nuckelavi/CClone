@@ -41,7 +41,7 @@ struct PS_INPUT
 	float2 Tex : TEXCOORD0;
 };
 
-/*
+
 float4 BoxBlur(float2 texCoord)
 {
 	//I know to get more blurred effect, you're meant to use multiple iterations, however... 
@@ -68,6 +68,7 @@ float4 BoxBlur(float2 texCoord)
 
 	return col;
 }
+
 
 float4 GaussianBlur(float2 texCoord, bool horizontal)
 {
@@ -106,7 +107,6 @@ float4 GaussianBlur(float2 texCoord, bool horizontal)
 
 	return centrePixel;
 }
-*/
 
 
 //--------------------------------------------------------------------------------------
@@ -130,11 +130,20 @@ PS_INPUT VS( VS_INPUT input )
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
 	float4 texColor = {1, 1, 1, 1};
-	//texColor = txDiffuse.Sample(samLinear, IN.Tex);
+	texColor = txDiffuse.Sample(samLinear, IN.Tex);
 
 	//blue tint
 	/*texColor.b *= 5.0f;
 	if (texColor.b >= 1.0f) { texColor.b = 1.0f; }*/
+
+	//grayscale
+	/*float gray = dot(float3(texColor.r, texColor.g, texColor.b), float3(0.3f, 0.59f, 0.11f));
+	texColor = float4(gray, gray, gray, texColor.a);*/
+
+	//return BoxBlur(IN.Tex);
+
+	//return GaussianBlur(IN.Tex, true);
+	return GaussianBlur(IN.Tex, false);
 
 	return texColor;
 }

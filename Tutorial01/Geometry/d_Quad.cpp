@@ -26,7 +26,7 @@ HRESULT Quad::InitMesh(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext)
 	_vertices.resize(NUM_VERTICES);
 
 	_vertices[0] = { XMFLOAT4(-1.0f, 1.0f, 0.5f, 1.0f), XMFLOAT2(0.0f, 0.0f) };
-	_vertices[1] = { XMFLOAT4(1.0f, 1.0f, 0.5f, 1.0f), XMFLOAT2(0.0f, 0.0f) };
+	_vertices[1] = { XMFLOAT4(1.0f, 1.0f, 0.5f, 1.0f), XMFLOAT2(1.0f, 0.0f) };
 	_vertices[2] = { XMFLOAT4(-1.0f, -1.0f, 0.5f, 1.0f), XMFLOAT2(0.0f, 1.0f) };
 	_vertices[3] = { XMFLOAT4(1.0f, -1.0f, 0.5f, 1.0f), XMFLOAT2(1.0f, 1.0f) };
 

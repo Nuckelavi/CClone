@@ -1381,9 +1381,9 @@ void RenderQuadEffects()
     
 
     //for cube
-   /* ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
-    if(tempsrv) tempsrv->Release();*/
+    //if(tempsrv) tempsrv->Release();
     //for graphics cube
     //g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
 
