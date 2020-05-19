@@ -101,13 +101,6 @@ GridTerrain g_TerrainDS;
 GridTerrain g_TerrainCH;
 
 //delete after creating effects ----------------------------
-//ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
-//ID3D11PixelShader* g_pPixelShaderPOM = nullptr;
-//ID3D11InputLayout* g_pVertexLayoutPOM = nullptr;
-//ID3D11Buffer* g_pConstantBufferPOM = nullptr;
-//ID3D11Buffer* g_pLightConstantBuffer2 = nullptr;
-int g_texNum = 10;
-ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_texNum];
 
 
 
@@ -126,8 +119,6 @@ SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
 
 void InitCamera();
 
-//HRESULT SetupPomShader();
-//void RenderSurfaceDetailEffect();
 
 HRESULT SetupCustomRenderTargets();
 HRESULT SetupQuadShader();
@@ -225,43 +216,6 @@ HRESULT InitWindow( HINSTANCE hInstance, int nCmdShow )
 }
 
 
-//--------------------------------------------------------------------------------------
-// Helper for compiling shaders with D3DCompile
-//
-// With VS 11, we could load up prebuilt .cso files instead...
-//--------------------------------------------------------------------------------------
-//HRESULT CompileShaderFromFile( const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut )
-//{
-//    HRESULT hr = S_OK;
-//
-//    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-//#ifdef _DEBUG
-//    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-//    // Setting this flag improves the shader debugging experience, but still allows 
-//    // the shaders to be optimized and to run exactly the way they will run in 
-//    // the release configuration of this program.
-//    dwShaderFlags |= D3DCOMPILE_DEBUG;
-//
-//    // Disable optimizations to further improve shader debugging
-//    dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-//#endif
-//
-//    ID3DBlob* pErrorBlob = nullptr;
-//    hr = D3DCompileFromFile( szFileName, nullptr, nullptr, szEntryPoint, szShaderModel, 
-//        dwShaderFlags, 0, ppBlobOut, &pErrorBlob );
-//    if( FAILED(hr) )
-//    {
-//        if( pErrorBlob )
-//        {
-//            OutputDebugStringA( reinterpret_cast<const char*>( pErrorBlob->GetBufferPointer() ) );
-//            pErrorBlob->Release();
-//        }
-//        return hr;
-//    }
-//    if( pErrorBlob ) pErrorBlob->Release();
-//
-//    return S_OK;
-//}
 
 
 //--------------------------------------------------------------------------------------
@@ -553,21 +507,6 @@ HRESULT		InitMesh()
 		return hr;
 
 
-	// Compile the SOLID pixel shader
-	//pPSBlob = nullptr;
-	//hr = CompileShaderFromFile(L"shader.fx", "PSSolid", "ps_4_0", &pPSBlob);
-	//if (FAILED(hr))
-	//{
-	//	MessageBox(nullptr,
-	//		L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
-	//	return hr;
-	//}
-
-	//// Create the SOLID pixel shader
-	//hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &g_pPixelShaderSolid);
-	//pPSBlob->Release();
-	//if (FAILED(hr))
-	//	return hr;
 
 
 
@@ -695,13 +634,6 @@ void CleanupDevice()
     if( g_pImmediateContext ) g_pImmediateContext->Release();
     if( g_pd3dDevice1 ) g_pd3dDevice1->Release();
     if( g_pd3dDevice ) g_pd3dDevice->Release();
-
-
-    /*if (g_pVertexLayoutPOM && g_pVertexLayoutPOM != nullptr) g_pVertexLayoutPOM->Release();
-    if (g_pVertexShaderPOM && g_pVertexShaderPOM != nullptr) g_pVertexShaderPOM->Release();
-    if (g_pPixelShaderPOM) g_pPixelShaderPOM->Release();
-    if (g_pConstantBufferPOM) g_pConstantBufferPOM->Release();
-    if (g_pLightConstantBuffer2) g_pLightConstantBuffer2->Release();*/
 
 
 
@@ -884,25 +816,6 @@ void Render()
 	lightProperties.Lights[0] = light;
 	g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer, 0, nullptr, &lightProperties, 0, 0);
 
-
-
-    //int chosenEffect = 2;
-    //ConstantBufferPOM cbPOM;
-    //mGO = g_GraphCubeTest.GetWorld();
-    //cbPOM.mWorld = XMMatrixTranspose(*mGO);
-    //cbPOM.mView = XMMatrixTranspose(g_View);
-    //cbPOM.mProjection = XMMatrixTranspose(g_Projection);
-    //cbPOM.fHeightScale = 0.15f;//0.05f;
-    //cbPOM.nMinSamples = 8;
-    //cbPOM.nMaxSamples = 32;
-    //cbPOM.nEffectID = 0;
-    //g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-
-    //LightPropertiesConstantBuffer2 lightProperties2;
-    //lightProperties2.EyePosition = LightPosition;
-    //lightProperties2.CameraPosition = g_CameraManager.GetCurrConstCamera()->Position();
-    //lightProperties2.Lights[0] = light;
-    //g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
 
 
 
@@ -1100,144 +1013,7 @@ void InitCamera()
     g_CameraManager.SetCurrentCamera(CameraType::FRONT);
 
 }
-/*
-HRESULT SetupPomShader()
-{
-    // Compile the vertex shader
-    ID3DBlob* pVSBlob2 = nullptr;
-    HRESULT hr = DX11::CompileShaderFromFile(L"d_POMShader.fx", "VS", "vs_4_0", &pVSBlob2);
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr,
-            L"The POM Vertex Shader FX file cannot be compiled.", L"Error", MB_OK);
-        return hr;
-    }
 
-    // Create the vertex shader
-    hr = g_pd3dDevice->CreateVertexShader(pVSBlob2->GetBufferPointer(), pVSBlob2->GetBufferSize(), nullptr, &g_pVertexShaderPOM);
-    if (FAILED(hr))
-    {
-        pVSBlob2->Release();
-        return hr;
-    }
-
-    // Define the input layout
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    };
-    UINT numElements = ARRAYSIZE(layout);
-
-    // Create the input layout
-    hr = g_pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob2->GetBufferPointer(),
-        pVSBlob2->GetBufferSize(), &g_pVertexLayoutPOM);
-    pVSBlob2->Release();
-    if (FAILED(hr))
-        return hr;
-
-    // Set the input layout
-    //g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
-
-    // Compile the pixel shader
-    ID3DBlob* pPSBlob2 = nullptr;
-    hr = DX11::CompileShaderFromFile(L"d_POMShader.fx", "PS", "ps_4_0", &pPSBlob2);
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr,
-            L"The POM Pixel Shader FX file cannot be compiled.", L"Error", MB_OK);
-        return hr;
-    }
-
-    // Create the pixel shader
-    hr = g_pd3dDevice->CreatePixelShader(pPSBlob2->GetBufferPointer(), pPSBlob2->GetBufferSize(), nullptr, &g_pPixelShaderPOM);
-    pPSBlob2->Release();
-    if (FAILED(hr))
-        return hr;
-
-
-    // Create the constant buffer
-    D3D11_BUFFER_DESC bd = {};
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(ConstantBufferPOM);
-    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bd.CPUAccessFlags = 0;
-    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pConstantBufferPOM);
-    if (FAILED(hr))
-        return hr;
-
-
-    // Create the light constant buffer
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(LightPropertiesConstantBuffer2);
-    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bd.CPUAccessFlags = 0;
-    hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pLightConstantBuffer2);
-    if (FAILED(hr))
-        return hr;
-
-    int texCount = 0;
-    const wchar_t* texFilePaths[] =
-    {
-        //L"Resources\\stone.dds", //0
-        ////L"Resources\\conenormal.dds",
-        //L"Resources\\stone_texture.dds", //1
-        //L"Resources\\stone_normalMap.dds",
-        //L"Resources\\stone_heightMap.dds",
-        L"Resources\\bricks_TEX.dds", //4
-        L"Resources\\bricks_NORM.dds",
-        L"Resources\\bricks_DISP.dds",
-        //L"Resources\\toybox_TEX.dds", //7
-        //L"Resources\\toybox_NORM.dds",
-        //L"Resources\\toybox_DISP.dds"
-    };
-    g_texNum = 3;
-    for (int i = 0; i < g_texNum; ++i)
-    {
-        hr = CreateDDSTextureFromFile(g_pd3dDevice, texFilePaths[i], nullptr, &g_pTextureRVs[texCount]);//&g_pTextureRV);
-        if (FAILED(hr))
-            return hr;
-        ++texCount;
-    }
-
-
-
-    return hr;
-}
-
-
-void RenderSurfaceDetailEffect()
-{
-    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
-
-    // Clear the back buffer
-    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
-
-    // Clear the depth buffer to 1.0 (max depth)
-    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-
-    //g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-
-    g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
-    g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
-
-    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBufferPOM);
-    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
-    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer2);
-
-    g_pImmediateContext->IASetInputLayout(g_pVertexLayoutPOM);
-    g_pImmediateContext->VSSetShader(g_pVertexShaderPOM, nullptr, 0);
-    g_pImmediateContext->PSSetShader(g_pPixelShaderPOM, nullptr, 0);
-    g_pImmediateContext->PSSetShaderResources(0, 3, g_pTextureRVs);
-    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
-
-    g_GraphCubeTest.Draw(g_pImmediateContext);
-}*/
 
 void RenderRegularCube()
 {
