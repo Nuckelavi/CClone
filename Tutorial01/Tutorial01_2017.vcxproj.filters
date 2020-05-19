@@ -80,6 +80,9 @@
     <ClCompile Include="d_DepthOfFieldEffect.cpp">
       <Filter>Effects</Filter>
     </ClCompile>
+    <ClCompile Include="d_BaseFX.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -201,6 +204,9 @@
       <Filter>Effects</Filter>
     </ClInclude>
     <ClInclude Include="d_DepthOfFieldEffect.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="d_BaseFX.h">
       <Filter>Effects</Filter>
     </ClInclude>
   </ItemGroup>

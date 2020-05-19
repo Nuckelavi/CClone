@@ -1,27 +1,11 @@
 //--------------------------------------------------------------------------------------
-// 
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
-
-// the lighting equations in this code have been taken from https://www.3dgep.com/texturing-lighting-directx-11/
-// with some modifications by David White
-
-//--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
 cbuffer ConstantBuffer : register( b0 )
 {
-	//matrix mInvWVP;
-	//matrix mPrevVP;
-	//matrix mInvProj;
-
 	float2 vScreenSize;
 	int nEffectID;
 	int nBlur;
-
-	/*float fDepth;
-	int nPassIndex;
-	float2 pad0;*/
 }
 
 Texture2D txDiffuse : register(t0);
@@ -40,34 +24,7 @@ struct PS_INPUT
     float4 Pos : SV_POSITION;
 	float2 Tex : TEXCOORD0;
 };
-
-
-float4 BoxBlur(float2 texCoord)
-{
-	//I know to get more blurred effect, you're meant to use multiple iterations, however... 
-	//just dividing screensize by 2 gives similar effects
-	float screenReduce = 2.0f;
-	float xOffset = 1.0f / (vScreenSize.x / screenReduce);
-	float yOffset = 1.0f / (vScreenSize.y / screenReduce);
-
-	//9 surrounding pixels
-	float4 topLeft = txDiffuse.Sample(samLinear, float2(texCoord.x - xOffset, texCoord.y - yOffset));
-	float4 topMid = txDiffuse.Sample(samLinear, float2(texCoord.x, texCoord.y - 1.0f));
-	float4 topRight = txDiffuse.Sample(samLinear, float2(texCoord.x + xOffset, texCoord.y - yOffset));
-
-	float4 midLeft = txDiffuse.Sample(samLinear, float2(texCoord.x - xOffset, texCoord.y));
-	float4 midMid = txDiffuse.Sample(samLinear, texCoord);
-	float4 midRight = txDiffuse.Sample(samLinear, float2(texCoord.x + xOffset, texCoord.y));
-
-	float4 bottomLeft = txDiffuse.Sample(samLinear, float2(texCoord.x - xOffset, texCoord.y + yOffset));
-	float4 bottomMid = txDiffuse.Sample(samLinear, float2(texCoord.x, texCoord.y + yOffset));
-	float4 bottomRight = txDiffuse.Sample(samLinear, float2(texCoord.x + xOffset, texCoord.y + yOffset));
-
-	//final colour
-	float4 col = (topLeft + topMid + topRight + midLeft + midMid + midRight + bottomLeft + bottomMid + bottomRight) / 9.0f;
-
-	return col;
-}
+//--------------------------------------------------------------------------------------
 
 
 float4 GaussianBlur(float2 texCoord, bool horizontal)
@@ -132,26 +89,12 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	float4 texColor = {1, 1, 1, 1};
 	texColor = txDiffuse.Sample(samLinear, IN.Tex);
 
-	//blue tint
-	/*texColor.b *= 5.0f;
-	if (texColor.b >= 1.0f) { texColor.b = 1.0f; }*/
-
 	if (nEffectID == 0)
 	{
-		//grayscale
-		float gray = dot(float3(texColor.r, texColor.g, texColor.b), float3(0.3f, 0.59f, 0.11f));
-		texColor = float4(gray, gray, gray, texColor.a);
+		return GaussianBlur(IN.Tex, true);
 	}
-	
-
-	if (nEffectID == 1)
+	else
 	{
-		return BoxBlur(IN.Tex);
-	}
-
-	if (nEffectID == 2)
-	{
-		//return GaussianBlur(IN.Tex, true);
 		return GaussianBlur(IN.Tex, false);
 	}
 

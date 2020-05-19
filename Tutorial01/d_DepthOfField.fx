@@ -1,10 +1,3 @@
-//--------------------------------------------------------------------------------------
-// 
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
-
-// the lighting equations in this code have been taken from https://www.3dgep.com/texturing-lighting-directx-11/
-// with some modifications by David White
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables

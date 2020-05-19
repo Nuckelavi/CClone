@@ -19,10 +19,6 @@ cbuffer ConstantBuffer : register( b0 )
 	int nMinSamples;
 	int nMaxSamples;
 	int nEffectID;
-
-	/*float fNearDepth;
-	float fFarDepth;
-	float2 pad0;*/
 }
 
 Texture2D txDiffuse[3] : register(t0);
@@ -588,11 +584,3 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	float4 col = float4(0, 0, 0, 1);
 	return col;
 }
-
-//--------------------------------------------------------------------------------------
-// PSSolid - render a solid color
-//--------------------------------------------------------------------------------------
-//float4 PSSolid(PS_INPUT input) : SV_Target
-//{
-//	return vOutputColor;
-//}
