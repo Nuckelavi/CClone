@@ -120,13 +120,20 @@ struct ConstantBufferPOM
 
 struct ConstantBufferQuad
 {
-	DirectX::XMMATRIX mInvWVP;
+	DirectX::XMFLOAT2 vScreenSize;
+	int nEffectID;
+	int nBlur;
+};
+
+struct ConstantBufferDOF
+{
+	//DirectX::XMMATRIX mInvWVP;
 	//DirectX::XMMATRIX mPrevVP;
-	DirectX::XMMATRIX mInvProj;
+	//DirectX::XMMATRIX mInvProj;
 
 	DirectX::XMFLOAT2 vScreenSize;
-	int nBlur;
 	int nEffectID;
+	int nBlur;
 
 	/*float fDepth;
 	int nPassIndex;

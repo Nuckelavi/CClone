@@ -71,6 +71,15 @@
     <ClCompile Include="d_SurfaceDetailEffect.cpp">
       <Filter>Effects</Filter>
     </ClCompile>
+    <ClCompile Include="d_ScreenSpaceEffects.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="d_GaussianBlurEffect.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="d_DepthOfFieldEffect.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -185,6 +194,15 @@
     <ClInclude Include="d_SurfaceDetailEffect.h">
       <Filter>Effects</Filter>
     </ClInclude>
+    <ClInclude Include="d_ScreenSpaceEffects.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="d_GaussianBlurEffect.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="d_DepthOfFieldEffect.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">
@@ -207,6 +225,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="d_POMShader.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="d_SimpleSSEffects.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

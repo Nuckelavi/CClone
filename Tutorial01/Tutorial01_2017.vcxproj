@@ -359,10 +359,13 @@
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="d_Block.h" />
     <ClInclude Include="d_Chunk.h" />
+    <ClInclude Include="d_DepthOfFieldEffect.h" />
+    <ClInclude Include="d_GaussianBlurEffect.h" />
     <ClInclude Include="d_GridTerrain.h" />
     <ClInclude Include="d_GUIManager.h" />
     <ClInclude Include="d_HeightmapGen.h" />
     <ClInclude Include="d_LightManager.h" />
+    <ClInclude Include="d_ScreenSpaceEffects.h" />
     <ClInclude Include="d_SurfaceDetailEffect.h" />
     <ClInclude Include="d_TextureManager.h" />
     <ClInclude Include="d_Utilities.h" />
@@ -395,10 +398,13 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
     <ClCompile Include="d_Block.cpp" />
+    <ClCompile Include="d_DepthOfFieldEffect.cpp" />
+    <ClCompile Include="d_GaussianBlurEffect.cpp" />
     <ClCompile Include="d_GridTerrain.cpp" />
     <ClCompile Include="d_GUIManager.cpp" />
     <ClCompile Include="d_HeightmapGen.cpp" />
     <ClCompile Include="d_LightManager.cpp" />
+    <ClCompile Include="d_ScreenSpaceEffects.cpp" />
     <ClCompile Include="d_SurfaceDetailEffect.cpp" />
     <ClCompile Include="d_TextureManager.cpp" />
     <ClCompile Include="d_Utilities.cpp" />
@@ -428,6 +434,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="d_POMShader.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="d_SimpleSSEffects.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="shader.fx">

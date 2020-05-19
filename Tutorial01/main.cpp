@@ -20,6 +20,7 @@
 
 #include "d_GridTerrain.h"
 #include "d_SurfaceDetailEffect.h"
+#include "d_ScreenSpaceEffects.h"
 
 DirectX::XMFLOAT4 g_EyePosition(0.0f, 0, -3, 1.0f);
 
@@ -116,10 +117,13 @@ ID3D11Buffer* g_pConstantBufferQuad = nullptr;
 
 //---------------------------------------------------------
 SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
+SSEffects* g_pSimpleSSFX = new SSEffects();
 
 HRESULT SetupCustomRenderTargets();
 HRESULT SetupQuadShader();
 void RenderQuadEffects();
+
+void RendSS(int effect);
 
 void RenderRegularCube();
 void SetupTerrain();
@@ -509,6 +513,8 @@ HRESULT		InitMesh()
 
     
     g_pSurfaceShader->SetupShader(g_pd3dDevice);
+
+    g_pSimpleSSFX->SetupShader(g_pd3dDevice);
     
 
     SetupQuadShader();
@@ -661,6 +667,12 @@ void CleanupDevice()
         g_pSurfaceShader = nullptr;
     }
 
+    if (g_pSimpleSSFX != nullptr)
+    {
+        delete g_pSimpleSSFX;
+        g_pSimpleSSFX = nullptr;
+    }
+
     g_GUIManager.Shutdown();
 
 
@@ -803,27 +815,11 @@ void Render()
     //THOU SHALLT BE NUKED 
     //----------------------------------------------------------
 
-    //compute inverse WVP. world, view and proj have been already transposed
-    XMMATRIX inv = cb1.mWorld;
-    inv = XMMatrixMultiply(cb1.mWorld, cb1.mView);
-    inv = XMMatrixMultiply(inv, cb1.mProjection);
-    XMVECTOR det = XMMatrixDeterminant(inv);
-    inv = XMMatrixInverse(&det, inv);
-
-    //compute inverse projection matrix
-    XMMATRIX invProj = cb1.mProjection;
-    XMVECTOR detProj = XMMatrixDeterminant(invProj);
-    invProj = XMMatrixInverse(&detProj, invProj);
 
     ConstantBufferQuad cbQuad;
-    cbQuad.mInvWVP = inv;
-    cbQuad.mInvProj = invProj;
     cbQuad.vScreenSize = XMFLOAT2((float)g_viewWidth, (float)g_viewHeight);
     cbQuad.nBlur = 1;
     cbQuad.nEffectID = 0;
-    //cbQuad.fDepth = 0.0f;
-    //cbQuad.nPassIndex = 0;
-    //cbQuad.mPrevVP = XMMatrixMultiply(cb1.mView, cb1.mProjection); 
     g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
 
     //----------------------------------------------------------
@@ -836,6 +832,8 @@ void Render()
 
     bool doSurfaceDetail = false;
     int effect = 0;
+
+    bool doSSFX = false;
 
     if ((int)g_GUIManager.GetScene() >= (int)Scene::HEIGHTMAP && (int)g_GUIManager.GetScene() <= (int)Scene::VOXEL)
     {
@@ -869,12 +867,14 @@ void Render()
         effect = 4;
         break;
     case Scene::GRAYSCALE:
-        RenderQuadEffects();
+        RendSS(0);
+        //RenderQuadEffects();
         break;
     case Scene::BOXBLUR:
-        cbQuad.nEffectID = 1;
+        RendSS(1);
+        /*cbQuad.nEffectID = 1;
         g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
-        RenderQuadEffects();
+        RenderQuadEffects();*/
         break;
     case Scene::GAUSSIAN:
         cbQuad.nEffectID = 2;
@@ -927,7 +927,6 @@ void Render()
     case Scene::VOXEL:
         break;
     }
-
 
 
     if (doSurfaceDetail)
@@ -1089,9 +1088,57 @@ HRESULT SetupQuadShader()
     bd.CPUAccessFlags = 0;
     hr = g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pConstantBufferQuad);
     if (FAILED(hr))
-        hr;
+        return hr;
 
     return hr;
+}
+
+void RendSS(int effect)
+{
+    g_pImmediateContext->OMSetRenderTargets(1, g_pSimpleSSFX->ppGetCustomRTV(), g_pDepthStencilView);
+
+    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::Coral);
+    g_pImmediateContext->ClearRenderTargetView(g_pSimpleSSFX->GetCustomRTV(), Colors::SeaGreen);
+    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+
+    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
+
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
+
+    //for cube
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
+    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
+
+    g_CubeTest.Draw(g_pImmediateContext);
+
+
+
+    //RTT------------------
+    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);//nullptr);
+
+    g_QuadTest->SetVertexBuffer(g_pImmediateContext);
+    g_QuadTest->SetIndexBuffer(g_pImmediateContext);
+
+    //render via shader
+    g_pSimpleSSFX->SetConstantBuffer(g_pImmediateContext, 640, 480, effect);
+    g_pSimpleSSFX->Render(g_pd3dDevice, g_pImmediateContext);
+
+    g_QuadTest->Draw(g_pImmediateContext);
+
+    ID3D11ShaderResourceView* const pSRV[1] = { NULL };
+    g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
+
 }
 
 void RenderQuadEffects()

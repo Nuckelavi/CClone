@@ -11,17 +11,9 @@
 //--------------------------------------------------------------------------------------
 cbuffer ConstantBuffer : register( b0 )
 {
-	//matrix mInvWVP;
-	//matrix mPrevVP;
-	//matrix mInvProj;
-
 	float2 vScreenSize;
 	int nEffectID;
 	int nBlur;
-
-	/*float fDepth;
-	int nPassIndex;
-	float2 pad0;*/
 }
 
 Texture2D txDiffuse : register(t0);
@@ -69,45 +61,18 @@ float4 BoxBlur(float2 texCoord)
 	return col;
 }
 
-
-float4 GaussianBlur(float2 texCoord, bool horizontal)
+float4 Grayscale(float4 col)
 {
-	float weight[] = { 0.9f, 0.55f, 0.18f, 0.1f };
-	float sum = 0.0f;
-	for (int i = 0; i < 4; ++i)
-	{
-		sum += weight[i];
-	}
-	sum += 1.0f;
-	for (int i = 0; i < 4; ++i)
-	{
-		weight[i] /= sum;
-	}
-
-	float2 texOffset = 1.0f / (vScreenSize / 2.0f);
-
-	float4 centrePixel = txDiffuse.Sample(samLinear, texCoord) * weight[0];
-
-	for (int i = 1; i < 4; ++i)
-	{
-		float2 offset = float2(0.0f, 0.0f);
-
-		if (horizontal)
-		{
-			offset = float2(texOffset.x * i, 0.0f);
-		}
-		else
-		{
-			offset = float2(0.0f, texOffset.y * i);
-		}
-
-		centrePixel += txDiffuse.Sample(samLinear, texCoord - offset) * weight[i];
-		centrePixel += txDiffuse.Sample(samLinear, texCoord + offset) * weight[i];
-	}
-
-	return centrePixel;
+	float gray = dot(float3(col.r, col.g, col.b), float3(0.3f, 0.59f, 0.11f));
+	return float4(gray, gray, gray, col.a);
 }
 
+float4 BlueTint(float4 col)
+{
+	col.b *= 5.0f;
+	if (col.b >= 1.0f) { col.b = 1.0f; }
+	return col;
+}
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
@@ -130,29 +95,21 @@ PS_INPUT VS( VS_INPUT input )
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
 	float4 texColor = {1, 1, 1, 1};
-	texColor = txDiffuse.Sample(samLinear, IN.Tex);
-
+	
 	//blue tint
-	/*texColor.b *= 5.0f;
-	if (texColor.b >= 1.0f) { texColor.b = 1.0f; }*/
+	//texColor = txDiffuse.Sample(samLinear, IN.Tex);
+	//return BlueTint(texColor);
 
 	if (nEffectID == 0)
 	{
 		//grayscale
-		float gray = dot(float3(texColor.r, texColor.g, texColor.b), float3(0.3f, 0.59f, 0.11f));
-		texColor = float4(gray, gray, gray, texColor.a);
+		texColor = txDiffuse.Sample(samLinear, IN.Tex);
+		return Grayscale(texColor);
 	}
 	
-
 	if (nEffectID == 1)
 	{
 		return BoxBlur(IN.Tex);
-	}
-
-	if (nEffectID == 2)
-	{
-		//return GaussianBlur(IN.Tex, true);
-		return GaussianBlur(IN.Tex, false);
 	}
 
 	return texColor;
