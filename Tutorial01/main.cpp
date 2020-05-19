@@ -101,13 +101,15 @@ GridTerrain g_TerrainDS;
 GridTerrain g_TerrainCH;
 
 //delete after creating effects ----------------------------
-ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
-ID3D11PixelShader* g_pPixelShaderPOM = nullptr;
-ID3D11InputLayout* g_pVertexLayoutPOM = nullptr;
-ID3D11Buffer* g_pConstantBufferPOM = nullptr;
-ID3D11Buffer* g_pLightConstantBuffer2 = nullptr;
+//ID3D11VertexShader* g_pVertexShaderPOM = nullptr;
+//ID3D11PixelShader* g_pPixelShaderPOM = nullptr;
+//ID3D11InputLayout* g_pVertexLayoutPOM = nullptr;
+//ID3D11Buffer* g_pConstantBufferPOM = nullptr;
+//ID3D11Buffer* g_pLightConstantBuffer2 = nullptr;
 int g_texNum = 10;
 ID3D11ShaderResourceView** g_pTextureRVs = new ID3D11ShaderResourceView * [g_texNum];
+
+
 
 ID3D11Texture2D* g_renderToTexture = nullptr;
 ID3D11RenderTargetView* g_customRenderTargetView = nullptr;
@@ -124,8 +126,8 @@ SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
 
 void InitCamera();
 
-HRESULT SetupPomShader();
-void RenderSurfaceDetailEffect();
+//HRESULT SetupPomShader();
+//void RenderSurfaceDetailEffect();
 
 HRESULT SetupCustomRenderTargets();
 HRESULT SetupQuadShader();
@@ -569,7 +571,7 @@ HRESULT		InitMesh()
 
 
 
-    SetupPomShader();
+    
     g_pSurfaceShader->SetupShader(g_pd3dDevice);
     
 
@@ -695,11 +697,11 @@ void CleanupDevice()
     if( g_pd3dDevice ) g_pd3dDevice->Release();
 
 
-    if (g_pVertexLayoutPOM && g_pVertexLayoutPOM != nullptr) g_pVertexLayoutPOM->Release();
+    /*if (g_pVertexLayoutPOM && g_pVertexLayoutPOM != nullptr) g_pVertexLayoutPOM->Release();
     if (g_pVertexShaderPOM && g_pVertexShaderPOM != nullptr) g_pVertexShaderPOM->Release();
     if (g_pPixelShaderPOM) g_pPixelShaderPOM->Release();
     if (g_pConstantBufferPOM) g_pConstantBufferPOM->Release();
-    if (g_pLightConstantBuffer2) g_pLightConstantBuffer2->Release();
+    if (g_pLightConstantBuffer2) g_pLightConstantBuffer2->Release();*/
 
 
 
@@ -884,23 +886,23 @@ void Render()
 
 
 
-    int chosenEffect = 2;
-    ConstantBufferPOM cbPOM;
-    mGO = g_GraphCubeTest.GetWorld();
-    cbPOM.mWorld = XMMatrixTranspose(*mGO);
-    cbPOM.mView = XMMatrixTranspose(g_View);
-    cbPOM.mProjection = XMMatrixTranspose(g_Projection);
-    cbPOM.fHeightScale = 0.15f;//0.05f;
-    cbPOM.nMinSamples = 8;
-    cbPOM.nMaxSamples = 32;
-    cbPOM.nEffectID = 0;
-    g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
+    //int chosenEffect = 2;
+    //ConstantBufferPOM cbPOM;
+    //mGO = g_GraphCubeTest.GetWorld();
+    //cbPOM.mWorld = XMMatrixTranspose(*mGO);
+    //cbPOM.mView = XMMatrixTranspose(g_View);
+    //cbPOM.mProjection = XMMatrixTranspose(g_Projection);
+    //cbPOM.fHeightScale = 0.15f;//0.05f;
+    //cbPOM.nMinSamples = 8;
+    //cbPOM.nMaxSamples = 32;
+    //cbPOM.nEffectID = 0;
+    //g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
 
-    LightPropertiesConstantBuffer2 lightProperties2;
-    lightProperties2.EyePosition = LightPosition;
-    lightProperties2.CameraPosition = g_CameraManager.GetCurrConstCamera()->Position();
-    lightProperties2.Lights[0] = light;
-    g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
+    //LightPropertiesConstantBuffer2 lightProperties2;
+    //lightProperties2.EyePosition = LightPosition;
+    //lightProperties2.CameraPosition = g_CameraManager.GetCurrConstCamera()->Position();
+    //lightProperties2.Lights[0] = light;
+    //g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer2, 0, nullptr, &lightProperties2, 0, 0);
 
 
 
@@ -929,7 +931,8 @@ void Render()
 
 
 
-    
+    bool doSurfaceDetail = false;
+    int effect = 0;
 
     switch (g_GUIManager.GetScene())
     {
@@ -937,38 +940,23 @@ void Render()
         RenderRegularCube();
         break;
     case Scene::NORMAL:
-        cbPOM.nEffectID = 0;
-        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-        RenderSurfaceDetailEffect();
-        break;
-    case Scene::PARALLAX:
-        cbPOM.nEffectID = 1;
-        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-        RenderSurfaceDetailEffect();
-        break;
-    case Scene::POM:
-        /*cbPOM.nEffectID = 2;
+        /*cbPOM.nEffectID = 0;
         g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
         RenderSurfaceDetailEffect();*/
-        g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
-        g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
-        g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-        g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
-        g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
-
-        mGO = g_GraphCubeTest.GetWorld();
-        g_pSurfaceShader->SetConstantBuffers(g_pImmediateContext, mGO, &g_View, &g_Projection, LightPosition,
-            g_CameraManager.GetCurrConstCamera()->Position(), light, 2);
-
-        g_pSurfaceShader->Render(g_pImmediateContext);
-
-        g_GraphCubeTest.Draw(g_pImmediateContext);
+        doSurfaceDetail = true;
+        effect = 0;
+        break;
+    case Scene::PARALLAX:
+        doSurfaceDetail = true;
+        effect = 1;
+        break;
+    case Scene::POM:
+        doSurfaceDetail = true;
+        effect = 2;
         break;
     case Scene::SELFSHADOWING:
-        cbPOM.nEffectID = 4;
-        g_pImmediateContext->UpdateSubresource(g_pConstantBufferPOM, 0, nullptr, &cbPOM, 0, 0);
-        RenderSurfaceDetailEffect();
+        doSurfaceDetail = true;
+        effect = 4;
         break;
     case Scene::GRAYSCALE:
         RenderQuadEffects();
@@ -1051,6 +1039,24 @@ void Render()
 
 
 
+    if (doSurfaceDetail)
+    {
+        g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
+        g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+        g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+        g_GraphCubeTest.SetVertexBuffer(g_pImmediateContext);
+        g_GraphCubeTest.SetIndexBuffer(g_pImmediateContext);
+
+        mGO = g_GraphCubeTest.GetWorld();
+        g_pSurfaceShader->SetConstantBuffers(g_pImmediateContext, mGO, &g_View, &g_Projection, LightPosition,
+            g_CameraManager.GetCurrConstCamera()->Position(), light, effect);
+
+        g_pSurfaceShader->Render(g_pImmediateContext);
+
+        g_GraphCubeTest.Draw(g_pImmediateContext);
+    }
+
 
     //grid render test
    /* g_GridTest.SetVertexBuffer(g_pImmediateContext);
@@ -1094,7 +1100,7 @@ void InitCamera()
     g_CameraManager.SetCurrentCamera(CameraType::FRONT);
 
 }
-
+/*
 HRESULT SetupPomShader()
 {
     // Compile the vertex shader
@@ -1231,7 +1237,7 @@ void RenderSurfaceDetailEffect()
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
     g_GraphCubeTest.Draw(g_pImmediateContext);
-}
+}*/
 
 void RenderRegularCube()
 {
