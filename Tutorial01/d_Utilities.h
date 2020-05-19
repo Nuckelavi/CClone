@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Windows.h>
+#include <d3d11_1.h>
 #include <DirectXMath.h>
 
 struct QuadVertex
@@ -24,4 +26,9 @@ namespace F
 {
 	float Max(float a, float b);
 	int Round(float a);
+}
+
+namespace DX11
+{
+	HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 }
