@@ -774,6 +774,8 @@ void Render()
 	g_pImmediateContext->UpdateSubresource(g_pLightConstantBuffer, 0, nullptr, &lightProperties, 0, 0);
 
 
+
+
     //HERE LIES THE FANCY STUFF --------------------------------------------------------------------------------------
 
     bool doSurfaceDetail = false;

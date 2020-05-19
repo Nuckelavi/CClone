@@ -4,9 +4,6 @@
 using namespace DirectX;
 
 SurfaceDetailFX::SurfaceDetailFX() :
-    /*_pVertexShader(nullptr),
-    _pPixelShader(nullptr),
-    _pVertexLayout(nullptr),*/
     _pConstantBuffer(nullptr),
     _pLightBuffer(nullptr),
     _pMaterialBuffer(nullptr),
@@ -17,9 +14,6 @@ SurfaceDetailFX::SurfaceDetailFX() :
 
 SurfaceDetailFX::~SurfaceDetailFX()
 {
-    /*if (_pVertexShader) _pVertexShader->Release();
-    if (_pPixelShader) _pPixelShader->Release();
-    if (_pVertexLayout) _pVertexLayout->Release();*/
     if (_pConstantBuffer) _pConstantBuffer->Release();
     if (_pLightBuffer) _pLightBuffer->Release();
     if (_pMaterialBuffer) _pMaterialBuffer->Release();
@@ -31,25 +25,6 @@ SurfaceDetailFX::~SurfaceDetailFX()
     }
     delete[] _pTextureRVs;
 }
-
-//HRESULT SurfaceDetailFX::SetupShader(ID3D11Device* pd3dDevice)
-//{
-//    HRESULT hr;
-//
-//    hr = CreateShaders(pd3dDevice);
-//    if (FAILED(hr))
-//        return hr;
-//
-//    hr = CreateBuffers(pd3dDevice);
-//    if (FAILED(hr))
-//        return hr;
-//
-//    hr = CreateTextures(pd3dDevice);
-//    if (FAILED(hr))
-//        return hr;
-//
-//    return hr;
-//}
 
 HRESULT SurfaceDetailFX::CreateShaders(ID3D11Device* pd3dDevice)
 {
