@@ -136,14 +136,24 @@ float4 PS(PS_INPUT IN) : SV_TARGET
 	/*texColor.b *= 5.0f;
 	if (texColor.b >= 1.0f) { texColor.b = 1.0f; }*/
 
-	//grayscale
-	/*float gray = dot(float3(texColor.r, texColor.g, texColor.b), float3(0.3f, 0.59f, 0.11f));
-	texColor = float4(gray, gray, gray, texColor.a);*/
+	if (nEffectID == 0)
+	{
+		//grayscale
+		float gray = dot(float3(texColor.r, texColor.g, texColor.b), float3(0.3f, 0.59f, 0.11f));
+		texColor = float4(gray, gray, gray, texColor.a);
+	}
+	
 
-	//return BoxBlur(IN.Tex);
+	if (nEffectID == 1)
+	{
+		return BoxBlur(IN.Tex);
+	}
 
-	//return GaussianBlur(IN.Tex, true);
-	return GaussianBlur(IN.Tex, false);
+	if (nEffectID == 2)
+	{
+		//return GaussianBlur(IN.Tex, true);
+		return GaussianBlur(IN.Tex, false);
+	}
 
 	return texColor;
 }

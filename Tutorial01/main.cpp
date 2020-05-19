@@ -951,9 +951,13 @@ void Render()
         RenderQuadEffects();
         break;
     case Scene::BOXBLUR:
+        cbQuad.nEffectID = 1;
+        g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
         RenderQuadEffects();
         break;
     case Scene::GAUSSIAN:
+        cbQuad.nEffectID = 2;
+        g_pImmediateContext->UpdateSubresource(g_pConstantBufferQuad, 0, nullptr, &cbQuad, 0, 0);
         RenderQuadEffects();
         break;
     case Scene::DOFBLUR:
