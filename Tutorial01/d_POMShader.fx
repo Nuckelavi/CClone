@@ -189,6 +189,7 @@ float3x3 computeTBNMatrix(float3 unitNormal, float3 tangent)
 {
 	float3 N = unitNormal;
 	//make sure tangent is orthogonal after interpolation
+	//N is flipped because I'm using openGL normal maps :'D
 	float3 T = normalize(tangent - dot(tangent, -N) * -N);
 	float3 B = cross(T, N);
 
@@ -205,6 +206,7 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
 	//in the DrawableGameObject.cpp
 	//this function is used for the code taken from tutorial (cube binormals)
 	float3 N = unitNormal;
+	//again, N flipped because I'm using openGL normal maps :'D
 	float3 T = normalize(tangent - dot(tangent, -N) * -N);
 	//this time you have to make sure the binormal is orthogonal as well 
 	float3 B = normalize(binorm - dot(binorm, tangent) * tangent);
