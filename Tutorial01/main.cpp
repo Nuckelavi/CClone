@@ -98,12 +98,13 @@ SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
 SSEffects* g_pSimpleSSFX = new SSEffects();
 GaussianBlurFX* g_pGaussianFX = new GaussianBlurFX();
 DepthOfFieldFX* g_pDOFFX = new DepthOfFieldFX();
+DepthPass* g_pDepthPass = new DepthPass();
 
 //functions
 void RenderRegularCube();
 void RenderSS(int effect);
 void RenderGauss();
-void RenderDOF();
+void RenderDOF(XMMATRIX* world, XMMATRIX* world2, ConstantBuffer& cb);
 void SetupTerrain();
 
 
@@ -490,7 +491,7 @@ HRESULT		InitMesh()
     g_pSimpleSSFX->SetupShader(g_pd3dDevice);
     g_pGaussianFX->SetupShader(g_pd3dDevice);
     g_pDOFFX->SetupShader(g_pd3dDevice);
-
+    g_pDepthPass->SetupShader(g_pd3dDevice);
 
 
 
@@ -618,6 +619,12 @@ void CleanupDevice()
     {
         delete g_pDOFFX;
         g_pDOFFX = nullptr;
+    }
+
+    if (g_pDepthPass != nullptr)
+    {
+        delete g_pDepthPass;
+        g_pDepthPass = nullptr;
     }
 
     g_GUIManager.Shutdown();
@@ -831,8 +838,19 @@ void Render()
         RenderGauss();
         break;
     case Scene::DOFBLUR:
-        RenderSS(0);
+    {
+        g_CubeTest.SetTranslation(-2.0f, 0.0f, 3.0f);
+        g_CubeTest.Update(0.0f);
+        mGO = g_CubeTest.GetWorld();
+        cb1.mWorld = XMMatrixTranspose(*mGO);
+        g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb1, 0, 0);
+
+        g_CubeTest.SetTranslation(0.0f, 0.0f, 0.0f);
+        g_CubeTest.Update(0.0f);
+        XMMATRIX* mGO2 = g_CubeTest.GetWorld();
+        RenderDOF(mGO, mGO2, cb1);
         break;
+    }
     case Scene::HEIGHTMAP:
         terrainIndex = 0;
         break;
@@ -1013,16 +1031,18 @@ void RenderGauss()
 
     ID3D11ShaderResourceView* const pSRV[1] = { NULL };
     g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
-
-    //temprtv->Release();
 }
 
-void RenderDOF()
+void RenderDOF(XMMATRIX* world, XMMATRIX* world2, ConstantBuffer& cb)
 {
     g_pImmediateContext->OMSetRenderTargets(1, &(g_pGaussianFX->ppGetCustomRTV()[0]), g_pDepthStencilView);
     g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::Coral);
-    g_pGaussianFX->ClearRenderTargets(g_pImmediateContext);
     g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    
+    g_pGaussianFX->ClearRenderTargets(g_pImmediateContext);
+    g_pImmediateContext->ClearRenderTargetView(g_pDepthPass->GetCustomRTV(), Colors::SeaGreen);
+    g_pImmediateContext->ClearRenderTargetView(g_pDOFFX->GetCustomRTV(), Colors::SeaGreen);
+
 
     g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
 
@@ -1043,6 +1063,76 @@ void RenderDOF()
     g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
 
     g_CubeTest.Draw(g_pImmediateContext);
+
+
+    cb.mWorld = XMMatrixTranspose(*world2);
+    g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+    g_CubeTest.Draw(g_pImmediateContext);
+
+
+    //RTT------------------
+
+    //depth pass
+    g_pImmediateContext->OMSetRenderTargets(1, g_pDepthPass->ppGetCustomRTV(), g_pDepthStencilView);
+    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_STENCIL | D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    g_CubeTest.SetTranslation(-2.0f, 0.0f, 3.0f);
+    g_CubeTest.Update(0.0f);
+    XMMATRIX* mGO = g_CubeTest.GetWorld();
+    g_pDepthPass->SetConstantBuffer(g_pImmediateContext, mGO, &g_View, 
+        &g_Projection, 1.0f, 100.0f);
+    g_pDepthPass->Render(g_pd3dDevice, g_pImmediateContext);
+
+    g_CubeTest.Draw(g_pImmediateContext);
+
+    g_CubeTest.SetTranslation(0.0f, 0.0f, 0.0f);
+    g_CubeTest.Update(0.0f);
+    XMMATRIX* mGO2 = g_CubeTest.GetWorld();
+    g_pDepthPass->SetConstantBuffer(g_pImmediateContext, mGO2, &g_View,
+        &g_Projection, 1.0f, 100.0f);
+    g_pDepthPass->Render(g_pd3dDevice, g_pImmediateContext);
+
+    g_CubeTest.Draw(g_pImmediateContext);
+    g_pDepthPass->CreateShaderResource(g_pd3dDevice);
+
+
+    //horizontal gaussian blur
+    g_pImmediateContext->OMSetRenderTargets(1, &(g_pGaussianFX->ppGetCustomRTV()[1]), nullptr);
+
+    g_QuadTest->SetVertexBuffer(g_pImmediateContext);
+    g_QuadTest->SetIndexBuffer(g_pImmediateContext);
+
+    g_pGaussianFX->SetConstantBuffer(g_pImmediateContext, 640, 480, 0);
+    g_pGaussianFX->Render(g_pd3dDevice, g_pImmediateContext, 0);
+    g_QuadTest->Draw(g_pImmediateContext);
+
+
+
+    //vertical gaussian blur
+    g_pImmediateContext->OMSetRenderTargets(1, g_pDOFFX->ppGetCustomRTV(), nullptr);
+
+    g_pGaussianFX->SetConstantBuffer(g_pImmediateContext, 640, 480, 1);
+    g_pGaussianFX->Render(g_pd3dDevice, g_pImmediateContext, 1);
+    g_QuadTest->Draw(g_pImmediateContext);
+
+
+
+    //final DOF pass
+    g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, nullptr);
+
+    g_pDOFFX->SetConstantBuffer(g_pImmediateContext, &cb.mProjection);
+    g_pDOFFX->Render(g_pd3dDevice, g_pImmediateContext, g_pDepthPass->GetCustomSRV(),
+        g_pGaussianFX->ppGetCustomSRV()[0]);
+    g_QuadTest->Draw(g_pImmediateContext);
+
+
+
+
+    ID3D11ShaderResourceView* const pSRV[1] = { NULL };
+    g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
+    g_pImmediateContext->PSSetShaderResources(1, 1, pSRV);
+    g_pImmediateContext->PSSetShaderResources(2, 1, pSRV);
 }
 
 void SetupTerrain()

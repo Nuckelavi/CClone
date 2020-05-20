@@ -361,6 +361,7 @@
     <ClInclude Include="d_Block.h" />
     <ClInclude Include="d_Chunk.h" />
     <ClInclude Include="d_DepthOfFieldEffect.h" />
+    <ClInclude Include="d_DepthPass.h" />
     <ClInclude Include="d_GaussianBlurEffect.h" />
     <ClInclude Include="d_GridTerrain.h" />
     <ClInclude Include="d_GUIManager.h" />
@@ -401,6 +402,7 @@
     <ClCompile Include="d_BaseFX.cpp" />
     <ClCompile Include="d_Block.cpp" />
     <ClCompile Include="d_DepthOfFieldEffect.cpp" />
+    <ClCompile Include="d_DepthPass.cpp" />
     <ClCompile Include="d_GaussianBlurEffect.cpp" />
     <ClCompile Include="d_GridTerrain.cpp" />
     <ClCompile Include="d_GUIManager.cpp" />
@@ -430,6 +432,9 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="d_DepthOfField.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="d_DepthShader.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="d_GaussianBlur.fx">

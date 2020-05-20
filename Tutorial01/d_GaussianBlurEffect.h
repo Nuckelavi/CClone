@@ -29,5 +29,5 @@ public:
 
 	ID3D11RenderTargetView* GetCustomRTV(int index);
 	ID3D11RenderTargetView** ppGetCustomRTV() { return _pCustomRTV; }
-
+	ID3D11ShaderResourceView** ppGetCustomSRV() { return _pCustomSRV; }
 };

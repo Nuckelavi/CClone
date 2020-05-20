@@ -7,10 +7,9 @@ class DepthOfFieldFX : public BaseFX
 private:
     ID3D11Buffer* _pConstantBuffer;
 
-    static constexpr int RTTS = 4;
-    ID3D11Texture2D* _pCustomRenderTarget[RTTS];
-    ID3D11RenderTargetView* _pCustomRTV[RTTS];
-    ID3D11ShaderResourceView* _pCustomSRV[RTTS];
+    ID3D11Texture2D* _pCustomRenderTarget;
+    ID3D11RenderTargetView* _pCustomRTV;
+    ID3D11ShaderResourceView* _pCustomSRV;
 
 protected:
     HRESULT CreateShaders(ID3D11Device* pd3dDevice);
@@ -21,12 +20,11 @@ public:
     DepthOfFieldFX();
     ~DepthOfFieldFX();
 
-    void ClearRenderTargets(ID3D11DeviceContext* pContext);
-    void SetConstantBuffer(ID3D11DeviceContext* pContext,
-        int screenW, int screenH, int blur);
-    void Render(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext, int srvIndex);
+    void SetConstantBuffer(ID3D11DeviceContext* pContext, DirectX::XMMATRIX* proj);
+    void Render(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pContext,
+        ID3D11ShaderResourceView* txDepth, ID3D11ShaderResourceView* txNoBlur);
 
-    ID3D11RenderTargetView* GetCustomRTV(int index);
-    ID3D11RenderTargetView** ppGetCustomRTV() { return _pCustomRTV; }
+    ID3D11RenderTargetView* GetCustomRTV() { return _pCustomRTV; }
+    ID3D11RenderTargetView** ppGetCustomRTV() { return &_pCustomRTV; }
 
 };

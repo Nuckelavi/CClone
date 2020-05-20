@@ -35,6 +35,7 @@
 #include "d_ScreenSpaceEffects.h"
 #include "d_GaussianBlurEffect.h"
 #include "d_DepthOfFieldEffect.h"
+#include "d_DepthPass.h"
 
 using namespace std;
 

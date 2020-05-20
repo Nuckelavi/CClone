@@ -83,6 +83,9 @@
     <ClCompile Include="d_BaseFX.cpp">
       <Filter>Effects</Filter>
     </ClCompile>
+    <ClCompile Include="d_DepthPass.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -209,6 +212,9 @@
     <ClInclude Include="d_BaseFX.h">
       <Filter>Effects</Filter>
     </ClInclude>
+    <ClInclude Include="d_DepthPass.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Tutorial01.rc">
@@ -234,6 +240,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="d_SimpleSSEffects.fx">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="d_DepthShader.fx">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

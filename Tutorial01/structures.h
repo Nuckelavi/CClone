@@ -125,6 +125,23 @@ struct ConstantBufferQuad
 	int nBlur;
 };
 
+struct ConstantBufferDepth
+{
+	DirectX::XMMATRIX mWorld;
+	DirectX::XMMATRIX mView;
+	DirectX::XMMATRIX mProjection;
+
+	float fNearDepth;
+	float fFarDepth;
+	DirectX::XMFLOAT2 pad0;
+};
+
+struct ConstantBufferDOF
+{
+	DirectX::XMMATRIX mInvProj;
+};
+
+/*
 struct ConstantBufferDOF
 {
 	//DirectX::XMMATRIX mInvWVP;
@@ -135,10 +152,11 @@ struct ConstantBufferDOF
 	int nEffectID;
 	int nBlur;
 
-	/*float fDepth;
+	float fDepth;
 	int nPassIndex;
-	DirectX::XMFLOAT2 pad0;*/
+	DirectX::XMFLOAT2 pad0;
 };
+*/
 
 struct LightPropertiesConstantBuffer2
 {
