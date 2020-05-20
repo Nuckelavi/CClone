@@ -16,13 +16,8 @@
 
 #include <vector>
 
-//imgui headers
-//#include "imgui/imgui.h"
-//#include "imgui/imgui_impl_win32.h"
-//#include "imgui/imgui_impl_dx11.h"
-#include "d_GUIManager.h"
-
 //managers
+#include "d_GUIManager.h"
 #include "Camera/d_CameraManager.h"
 #include "d_LightManager.h"
 #include "d_TextureManager.h"
@@ -31,6 +26,15 @@
 #include "Geometry/d_Cube.h"
 #include "Geometry/d_GraphicsCube.h"
 #include "Geometry/d_Quad.h"
+
+//terrain
+#include "d_GridTerrain.h"
+
+//effects
+#include "d_SurfaceDetailEffect.h"
+#include "d_ScreenSpaceEffects.h"
+#include "d_GaussianBlurEffect.h"
+#include "d_DepthOfFieldEffect.h"
 
 using namespace std;
 

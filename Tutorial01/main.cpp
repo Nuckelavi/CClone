@@ -17,12 +17,6 @@
 #include "main.h"
 
 
-
-#include "d_GridTerrain.h"
-#include "d_SurfaceDetailEffect.h"
-#include "d_ScreenSpaceEffects.h"
-#include "d_GaussianBlurEffect.h"
-
 DirectX::XMFLOAT4 g_EyePosition(0.0f, 0, -3, 1.0f);
 
 //--------------------------------------------------------------------------------------
@@ -96,7 +90,6 @@ GUIManager g_GUIManager;
 Cube g_CubeTest;
 GraphicsCube g_GraphCubeTest;
 Quad* g_QuadTest;
-//Grid g_GridTest;
 
 //terrains
 GridTerrain g_GridTerrains[4];
@@ -104,11 +97,13 @@ GridTerrain g_GridTerrains[4];
 SurfaceDetailFX* g_pSurfaceShader = new SurfaceDetailFX();
 SSEffects* g_pSimpleSSFX = new SSEffects();
 GaussianBlurFX* g_pGaussianFX = new GaussianBlurFX();
+DepthOfFieldFX* g_pDOFFX = new DepthOfFieldFX();
 
 //functions
 void RenderRegularCube();
-void RendSS(int effect);
-void RendGauss();
+void RenderSS(int effect);
+void RenderGauss();
+void RenderDOF();
 void SetupTerrain();
 
 
@@ -492,13 +487,10 @@ HRESULT		InitMesh()
 
     
     g_pSurfaceShader->SetupShader(g_pd3dDevice);
-
     g_pSimpleSSFX->SetupShader(g_pd3dDevice);
-
     g_pGaussianFX->SetupShader(g_pd3dDevice);
-    
+    g_pDOFFX->SetupShader(g_pd3dDevice);
 
-    //SetupQuadShader();
 
 
 
@@ -620,6 +612,12 @@ void CleanupDevice()
     {
         delete g_pGaussianFX;
         g_pGaussianFX = nullptr;
+    }
+
+    if (g_pDOFFX != nullptr)
+    {
+        delete g_pDOFFX;
+        g_pDOFFX = nullptr;
     }
 
     g_GUIManager.Shutdown();
@@ -824,16 +822,16 @@ void Render()
         effect = 4;
         break;
     case Scene::GRAYSCALE:
-        RendSS(0);
+        RenderSS(0);
         break;
     case Scene::BOXBLUR:
-        RendSS(1);
+        RenderSS(1);
         break;
     case Scene::GAUSSIAN:
-        RendGauss();
+        RenderGauss();
         break;
     case Scene::DOFBLUR:
-        RendSS(0);
+        RenderSS(0);
         break;
     case Scene::HEIGHTMAP:
         terrainIndex = 0;
@@ -918,7 +916,7 @@ void RenderRegularCube()
     g_CubeTest.Draw(g_pImmediateContext);
 }
 
-void RendSS(int effect)
+void RenderSS(int effect)
 {
     g_pImmediateContext->OMSetRenderTargets(1, g_pSimpleSSFX->ppGetCustomRTV(), g_pDepthStencilView);
     g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::Coral);
@@ -961,7 +959,7 @@ void RendSS(int effect)
     g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
 }
 
-void RendGauss()
+void RenderGauss()
 {
     g_pImmediateContext->OMSetRenderTargets(1, &(g_pGaussianFX->ppGetCustomRTV()[0]), g_pDepthStencilView);
     g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::Coral);
@@ -1017,6 +1015,34 @@ void RendGauss()
     g_pImmediateContext->PSSetShaderResources(0, 1, pSRV);
 
     //temprtv->Release();
+}
+
+void RenderDOF()
+{
+    g_pImmediateContext->OMSetRenderTargets(1, &(g_pGaussianFX->ppGetCustomRTV()[0]), g_pDepthStencilView);
+    g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::Coral);
+    g_pGaussianFX->ClearRenderTargets(g_pImmediateContext);
+    g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    g_pImmediateContext->PSSetSamplers(0, 1, &g_pSamplerLinear);
+
+    g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+    g_CubeTest.SetVertexBuffer(g_pImmediateContext);
+    g_CubeTest.SetIndexBuffer(g_pImmediateContext);
+
+    g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+    g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
+    g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(1, 1, &g_pMaterialConstantBuffer);
+    g_pImmediateContext->PSSetConstantBuffers(2, 1, &g_pLightConstantBuffer);
+
+    //for cube
+    ID3D11ShaderResourceView* tempsrv = (g_TextureManager.TexturesAt(TextureGroup::STONE));
+    g_pImmediateContext->PSSetShaderResources(0, 1, &tempsrv);
+
+    g_CubeTest.Draw(g_pImmediateContext);
 }
 
 void SetupTerrain()
