@@ -189,7 +189,7 @@ float3x3 computeTBNMatrix(float3 unitNormal, float3 tangent)
 {
 	float3 N = unitNormal;
 	//make sure tangent is orthogonal after interpolation
-	float3 T = normalize(tangent - dot(tangent, N) * N);
+	float3 T = normalize(tangent - dot(tangent, -N) * -N);
 	float3 B = cross(T, N);
 
 	//compute the tangent space matrix
@@ -205,7 +205,7 @@ float3x3 computeTBNMatrixB(float3 unitNormal, float3 tangent, float3 binorm)
 	//in the DrawableGameObject.cpp
 	//this function is used for the code taken from tutorial (cube binormals)
 	float3 N = unitNormal;
-	float3 T = normalize(tangent - dot(tangent, N) * N);
+	float3 T = normalize(tangent - dot(tangent, -N) * -N);
 	//this time you have to make sure the binormal is orthogonal as well 
 	float3 B = normalize(binorm - dot(binorm, tangent) * tangent);
 
@@ -426,7 +426,7 @@ float4 NormalMapped(PS_INPUT IN)
 float4 SimpleParallaxMapped(PS_INPUT IN)
 {
 	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
-	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
+	float3 vertexToEye = -normalize(CameraPosition - IN.worldPos).xyz;
 
 	IN.Norm = normalize(IN.Norm);
 
@@ -468,7 +468,7 @@ float4 SimpleParallaxMapped(PS_INPUT IN)
 float4 ParallaxOcclusionMapped(PS_INPUT IN)
 {
 	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
-	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
+	float3 vertexToEye = -normalize(CameraPosition - IN.worldPos).xyz;
 
 	IN.Norm = normalize(IN.Norm);
 
@@ -510,7 +510,7 @@ float4 ParallaxOcclusionMapped(PS_INPUT IN)
 float4 SelfShadowed(PS_INPUT IN)
 {
 	float3 vertexToLight = normalize(EyePosition - IN.worldPos).xyz;
-	float3 vertexToEye = normalize(CameraPosition - IN.worldPos).xyz;
+	float3 vertexToEye = -normalize(CameraPosition - IN.worldPos).xyz;
 
 	IN.Norm = normalize(IN.Norm);
 	
