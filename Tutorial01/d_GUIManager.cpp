@@ -250,7 +250,8 @@ void GUIManager::RenderCameraMenu()
 void GUIManager::ChooseScene()
 {
     const char* SceneNames[] = {
-        "Physics Demo",
+        //"Physics Demo",
+        "Blank",
         "Normal Mapping",
         "Simple Parallax",
         "Parallax Occlusion",
@@ -262,8 +263,8 @@ void GUIManager::ChooseScene()
         "Heightmap Terrain",
         "Fault Formation",
         "Diamond Square",
-        "Circle/Hill",
-        "Voxel"
+        "Circle/Hill"
+        //"Voxel"
     };
     
     for (int i = 0; i < IM_ARRAYSIZE(SceneNames); ++i)
